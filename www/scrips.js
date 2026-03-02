@@ -79,7 +79,6 @@ function onClickMark(event) {
 
 var dialogCounter = 0;
 function checkDialog() {
-    console.log(dialogCounter);
     var dialog = document.getElementById("endereco_selecionado_dialog");
     var display = dialog.style.display;
     if (display == "block") {

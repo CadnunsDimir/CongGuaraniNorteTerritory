@@ -5,6 +5,7 @@ var fecharBotao = null;
 var listaEnderecosTelaCheia = null;
 var listaUl = null;
 var allMarks = [];
+var centerMark = [];
 var fullScreenStateKey = "b03cd13b-b378-479d-8f7c-12ec6f2ff40a";
 
 function inicializarMapa() {    
@@ -43,6 +44,31 @@ function centralizarMapa(coordinates) {
     if (!map) return;
     map.setView(coordinates, 16);
     map.invalidateSize();
+    addCenterMark(coordinates);
+}
+
+function addCenterMark(coordinates) {
+    
+    centerMark.forEach(marker => map.removeLayer(marker));
+    centerMark.length = 0;
+
+    const gpsMarker = L.circleMarker(coordinates, {
+        radius: 8,
+        fillColor: "#2196F3",
+        color: "#FFFFFF",
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.9
+    }).addTo(map);
+
+    const accuracyCircle = L.circle(coordinates, {
+        radius: 100, // em metros
+        color: "#2196F3",
+        fillOpacity: 0.15,
+        weight: 1
+    }).addTo(map);
+
+    centerMark.push(gpsMarker, accuracyCircle);
 }
 
 function marker(coordinates, cor = '#FF0000') {
@@ -70,6 +96,11 @@ function marker(coordinates, cor = '#FF0000') {
         parseFloat(coordinates[0]), 
         parseFloat(coordinates[1])
     ], { icon }).addTo(map);
+    
+    // const newMarker = L.marker([
+    //     parseFloat(coordinates[0]), 
+    //     parseFloat(coordinates[1])
+    // ]).addTo(map);
 
     allMarks.push(newMarker);
     return newMarker;
@@ -146,8 +177,14 @@ function atualizarListaFullscreen(listaStrings) {
     listaUl.innerHTML = "";
     listaStrings.forEach(text=> {
         var listItem = document.createElement("li");
+        var position = listaStrings.indexOf(text);
         listItem.innerText = text;
         listaUl.appendChild(listItem);
+        listItem.addEventListener("click", ()=>{
+            console.log("click no endereco "+position);
+            var marker = allMarks[position];
+            map.setView(marker.getLatLng(), 16);
+        })
     });
 }
 
