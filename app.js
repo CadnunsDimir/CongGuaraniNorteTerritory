@@ -1,8 +1,8 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import ListaTerritorios from './core/ListaTerritorios.js';
-import TerritorioService from './core/Territorio.js';
+import TerritorioService from './core/TerritorioService.js';
+import GetListaTerritorios from './core/ListaTerritoriosArray.js';
 
 const port = 3000;
 const apiPath = "/api";
@@ -21,7 +21,16 @@ app.get('/www/:pathFile', (req, res) => {
 });
 
 app.get(apiPath+"/territorios", (req, res) => {
-    res.send(ListaTerritorios);
+    res.send(TerritorioService.adicionarNovosTerritorios(GetListaTerritorios()));
+});
+
+app.get(apiPath+"/territorios/refresh", (req, res) => {
+    TerritorioService.refreshData(()=> 
+      res.send({
+        status: 200,
+        response: "OK"
+      })
+    );
 });
 
 app.get(apiPath+"/territorios/:numeroCartao", (req, res) => {

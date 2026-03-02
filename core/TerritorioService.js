@@ -1,3 +1,4 @@
+import Utils from "./Utils.js";
 
 const TerritorioService = () => {
     const urlCsv = "XPTO?output=csv";
@@ -7,47 +8,20 @@ const TerritorioService = () => {
     const longKey = 3;
     const colorFieldKey = 0;
 
-    var listaEnderecos = [];
-    fetch(urlCsv)
-        .then(response => response.text())
-        .then(data => {
-            listaEnderecos = parseCSV(data);
-            console.log("[CSV] Todas as "+ listaEnderecos.length+" enderecos foram carregados!");
-        })
-        .catch(error => console.error("Erro ao buscar dados:", error));
+    var listaEnderecos = [];    
 
-    function parseCSV(csvString) {
-        const rows = [];
-        let currentRow = [];
-        let currentField = '';
-        let insideQuotes = false;
-
-        for (let i = 0; i < csvString.length; i++) {
-            const char = csvString[i];
-            const nextChar = csvString[i + 1];
-
-            if (char === '"') {
-                insideQuotes = !insideQuotes;
-            } else if (char === ',' && !insideQuotes) {
-                currentRow.push(currentField.trim());
-                currentField = '';
-            } else if ((char === '\n' || char === '\r') && !insideQuotes) {
-                currentRow.push(currentField.trim());
-                if (currentRow.length > 0 && currentRow[0] !== '') {
-                    rows.push(currentRow);
-                }
-                currentRow = [];
-                currentField = '';
-            } else {
-                currentField += char;
-            }
-        }
-
-        if (currentField) currentRow.push(currentField.trim());
-        if (currentRow.length > 0) rows.push(currentRow);
-
-        return rows;
+    function refreshData(callback) {
+        fetch(urlCsv)
+            .then(response => response.text())
+            .then(data => {
+                listaEnderecos = Utils.parseCSV(data);
+                console.log("[CSV] Todas as "+ listaEnderecos.length+" enderecos foram carregados!");
+                callback();
+            })
+            .catch(error => console.error("Erro ao buscar dados:", error));
     }
+
+    
     
     const getByCardNumber = (numeroCartao) => {
         console.log("Carregando cartão "+numeroCartao);
@@ -63,8 +37,28 @@ const TerritorioService = () => {
             }))
         }
     }
+
+    const adicionarNovosTerritorios = (listaTerritoriosFixa) => {
+        var numerosAtuais = listaTerritoriosFixa.map(x=> x.numeroCartao);
+        var novaLista = [...listaTerritoriosFixa]
+        listaEnderecos.forEach(x=> {
+            if (!listaEnderecos.includes(x)) {
+                numerosAtuais.push(x);
+                novaLista.push({
+                    numeroCartao: x,
+                    localidade: x + " - Nova Localidade"
+                });
+            }
+        });
+        return novaLista;
+    }
+
+    refreshData(()=>{});
+
     return {
-        getByCardNumber
+        getByCardNumber,
+        adicionarNovosTerritorios,
+        refreshData
     }
 };
 

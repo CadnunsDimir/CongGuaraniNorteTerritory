@@ -1,44 +1,35 @@
-var lista = `1 - V. Maria Baixa (Rosinha)
-2 - V. Guilherme (Rosa Escuro)
-3 - V. Guilherme (Verde Claro)
-4 - V. Guilherme (Laranja Escuro)
-5 - V. Guilherme (Preto)
-6 - Avenida Conceição (Verde Limão)
-7 - Salão do Reino (Vermelho Tijolo)
-8 - Paranhos Pederneiras (Roxo)
-9 - V. Maria Baixa (Cinza)
-10 - V. Maria Alta (Amarelo Sol)
-11 - V. Sabrina (Roxo)
-12 - UBS V. Medeiros (Cinza Escuro)
-13 - Vila Ede (Cinza Claro)
-14 - Isolina Mazzei (Grafite)
-15 - SR V. Medeiros (Azul)
-16 - Neneca (Azul Céu)
-17 - Jardim Japão (Laranja)
-18 - Arlindo Luz, Jardim Brasil (Verde)
-19 - AMA Jardim Brasil (Roxo)
-20 - Jardim Brasil (Vermelho Claro)
-21 - J. Brasil (Verde Abacate)
-22 - SR J. Brasil (Cinza)
-23 - Tenente Sotomano (Preto)
-24 - Benfica (Vermelho)
-25 - Roland Garros (Verde Escuro)
-26 - Edu Chaves (Azul)
-27 - Edu Chaves (Marrom)
-28 - Edu Chaves (Amarelo)
-29 - Tremembé (Verde)
-30 - Santana (Azul)
-31 - Lauzane (Vermelho)
-32 - Casa Verde (Verde)
-33 - Guarulhos
-34 - Parque Novo Mundo (Amarelo Mostarda)`;
+import Utils from "./Utils.js";
 
-const ListaTerritorios = lista.split("\n").map(t=> {
-    var cardArray = t.split(" - ")
-    return {
-        numeroCartao : cardArray[0],
-        localidade: cardArray[1]
-    }
-});
+const ListaTerritorios = [];
 
-export default ListaTerritorios;
+//para conseguir trazer os resultados de outras abas da planilha precisa passar o gid da aba
+var urlCsvLocalidades = "XPTO?output=csv&gid=1576675342";
+
+
+fetch(urlCsvLocalidades)
+    .then(response => response.text())
+    .then(data => {
+        var listaCartoes = Utils.parseCSV(data);
+        console.log("[CSV] Todos os " + listaCartoes.length + " cartoes foram carregados!");
+
+        ListaTerritorios.length = 0;
+        ListaTerritorios.push(
+
+        );
+        listaCartoes.forEach(c => {
+            console.log(c);
+            if (c[2] !== "localidade" && c[2] !== "Total") {
+                ListaTerritorios.push({
+                    numeroCartao: c[1],
+                    localidade: c[2]
+                });
+            }
+        })
+    })
+    .catch(error => console.error("Erro ao buscar dados:", error));
+
+const GetListaTerritorios = () => {
+    return ListaTerritorios;
+}
+
+export default GetListaTerritorios;
