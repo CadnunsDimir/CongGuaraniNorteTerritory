@@ -17,7 +17,6 @@ fetch(urlCsvLocalidades)
 
         );
         listaCartoes.forEach(c => {
-            console.log(c);
             if (c[2] !== "localidade" && c[2] !== "Total") {
                 ListaTerritorios.push({
                     numeroCartao: c[1],
