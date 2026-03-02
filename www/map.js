@@ -129,8 +129,14 @@ function updateMarks(marks, color, onClickMark) {
         })
     );
 
-    var center = getCenter(Alloordinates);
-    centralizarMapa(center);
+    var grupoMarcadores = L.featureGroup(allMarks).addTo(map);
+    map.fitBounds(grupoMarcadores.getBounds(), {
+        padding: [20, 20],
+    });
+    map.invalidateSize();
+
+    var center = getCenter(Alloordinates);    
+    addCenterMark(center);
 }
 
 function getCenter(allCoordinates) {
