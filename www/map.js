@@ -73,36 +73,37 @@ function addCenterMark(coordinates) {
 
 function marker(coordinates, cor = '#FF0000') {
     if (!map) return;
-
-    var iconHtml = `
-        <div style="position: relative; width: 20px; height: 20px;" class="mapMark" data-description="marker_description">
-            <div style="background-color: ${cor}; width: 100%; height: 100%; border-radius: 50%; border: 2px solid white;"></div>
-            <div style="position: absolute; left: 53%; bottom: -5px; width: 0; height: 0;
-                        border-left: 6px solid transparent; border-right: 6px solid transparent;
-                        border-top: 6px solid ${cor}; transform: translateX(-50%);"></div>
-        </div>`;
-    
-    if (coordinates.length >= 3) {
-        iconHtml = iconHtml.replace("marker_description", coordinates[2]);
-    }
-
+    const iconSize = 24;
+    const iconAnchor = iconSize / 2;
     const icon = L.divIcon({
-        html: iconHtml,
-        iconSize: [20, 26], // height includes tail
-        className: ''
+        className: 'marker-circulo', // A classe CSS que criamos
+        html: `<div 
+            class="mapMark"
+            data-description="${coordinates[2] || "vazio"}" 
+            style="background-color: ${cor}; 
+                           width: 100%; height: 100%; 
+                           border-radius: 50%; 
+                           display: flex; justify-content: center; align-items: center;">
+                   <i class="fa-solid fa-house" style="color: white; font-size: ${iconAnchor}px"></i>
+               </div>`, // O ícone da casinha
+        iconSize: [iconSize, iconSize], // Tamanho do círculo [largura, altura]
+        iconAnchor: [iconAnchor, iconAnchor] // Metade do tamanho para ficar centralizado na coordenada
     });
-    
+
     const newMarker = L.marker([
         parseFloat(coordinates[0]), 
         parseFloat(coordinates[1])
     ], { icon }).addTo(map);
+
+    allMarks.push(newMarker);
+
     
     // const newMarker = L.marker([
     //     parseFloat(coordinates[0]), 
     //     parseFloat(coordinates[1])
     // ]).addTo(map);
 
-    allMarks.push(newMarker);
+    
     return newMarker;
 }
 

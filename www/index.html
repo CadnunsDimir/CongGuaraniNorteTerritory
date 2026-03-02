@@ -7,6 +7,7 @@
     <title>Visualizador de Mapas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .center-content {
             display: flex;
@@ -104,7 +105,20 @@
             margin-top: 0;
         }
 
-        
+        .marker-circulo {
+            background-color: #2196F3;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            box-shadow: 0 0 4px rgba(0,0,0,0.4);
+        }
+
+        .marker-circulo i {
+            font-size: 14px;
+        }
 
         .lista-enderecos-fullscreen {
             position: fixed;
