@@ -1,5 +1,9 @@
 var itemPorColuna = 14;
 
+setInterval(()=> {
+    checkDialog();
+}, 1000);
+
 function carregarSelect() {
     var formSelect = document.getElementById("form_localide");
 
@@ -9,10 +13,11 @@ function carregarSelect() {
             formSelect.innerHTML = "";
             listaOption.forEach(op => {
                 var option = document.createElement("option");
-                option.innerText = op.numeroCartao + " - " + op.localidade;
+                option.innerText = op.localidade;
                 option.setAttribute("value", op.numeroCartao);
                 formSelect.appendChild(option);
             });
+            formSelect.value = document.getElementById("form_numero_territorio").value;
         })
         .catch(error => console.error("Erro ao buscar dados:", error));
 
@@ -23,6 +28,8 @@ function carregarSelect() {
         carregarEnderecos(cardNumber);
         atualizaUrl(cardNumber);
     });
+
+    
 }
 
 async function carregarEnderecos(numeroCartao) {
@@ -32,8 +39,9 @@ async function carregarEnderecos(numeroCartao) {
     var cartao = await fetch("/api/territorios/" + numeroCartao)
         .then(res=> res.json());
     var duasColunas = cartao.enderecos.length > itemPorColuna;
-    var marks = cartao.enderecos.map(e => [e.lat, e.long]);
+    var marks = cartao.enderecos.map(e => [e.lat, e.long, e.endereco]);
     var color = cartao.corCartao;
+    atualizarListaFullscreen(cartao.enderecos.map(x=>x.endereco));
 
     for (let i = 0; i < itemPorColuna; i++) {
         var endereco = cartao.enderecos[i];
@@ -49,14 +57,37 @@ async function carregarEnderecos(numeroCartao) {
             tCell2.innerText = address.replace('"', "");
             tRow.appendChild(tCell2);
 
-            var endereco2 = cartao.enderecos[itemPorColuna + i] || ["", "", "", ""];
-            tCell2.innerText = endereco2.endereco.replace('"', "");
+            var endereco2 = cartao.enderecos[itemPorColuna + i];
+            if(endereco2)
+                tCell2.innerText = endereco2.endereco.replace('"', "");
         }
 
         table.appendChild(tRow);
     }
 
-    updateMarks(marks, color);
+    updateMarks(marks, color, onClickMark);
+}
+
+function onClickMark(event) {
+    var dialog = document.getElementById("endereco_selecionado_dialog");
+    var text = document.getElementById("endereco_selecionado");
+
+    text.innerText = event;
+    dialog.style.display = "block";
+    dialogCounter = 10;
+}
+
+var dialogCounter = 0;
+function checkDialog() {
+    console.log(dialogCounter);
+    var dialog = document.getElementById("endereco_selecionado_dialog");
+    var display = dialog.style.display;
+    if (display == "block") {
+        dialogCounter--;
+        if (dialogCounter <= 0) {
+            dialog.style.display = "none";
+        }
+    }
 }
 
 function inicializarTabela() {

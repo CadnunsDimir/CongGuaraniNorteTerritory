@@ -8,11 +8,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <style>
+        .center-content{
+            display: flex;
+            justify-content: center;
+        }
+
         .card {
             border: 2px solid black;
-            padding: 20px;
-            margin: 20px;
-            width: 720px;
+            padding: 20px;            
+            max-width: 720px;
+            margin: 40px;
         }
 
         .card h1 {
@@ -40,13 +45,95 @@
         }
         #fechar_mapa_botao {
             position: fixed;
-            top: 10;
-            right: 10;
+            top: 10px;
+            right: 10px;
         }
+        dialog{
+            position: fixed;
+            bottom: 20px;
+            z-index: 400;
+        }
+        dialog p{
+            margin: 0;
+        }
+
+        button{
+            background-color: white;
+            border-radius: 2px;
+            border: none;
+            box-shadow: 0px 0px 4px black;
+        }
+
+        .map-button{            
+            display: block;
+            padding: 7px;
+            float: right;
+            position: relative;
+            top: 10px;
+            right: 10px;
+            z-index: 401;
+        }
+
+        .map-button.close{
+            height: 45px;
+            width: 45px;
+            font-size: 30px;
+            padding: 0;
+        }
+
+        .map-default-position{
+            height: 400px; 
+            width: 100%; 
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .map-default-position.fullscreen{
+            height : 100%;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin-top: 0;
+        }
+        .lista-enderecos-fullscreen{
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            left: 0;
+            background: white;
+            z-index: 1001;
+            display: none;
+        }
+
+        .lista-enderecos-fullscreen button{
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        .lista-enderecos-fullscreen ul{
+            list-style: none;
+            width: 100%;
+            max-height: 20vh;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .lista-enderecos-fullscreen ul li {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            padding-inline: 30px;
+        }
+
     </style>
 </head>
 
-<body>
+<body class="center-content">
     <div class="card">
         <h1>Cartão de Mapa de Território</h1>
         <form action="">
@@ -60,9 +147,19 @@
             </label>
         </form>
         <table id="tabela_enderecos"></table>
-        <button onclick="mapaTelaCheia()">full</button>
-        <button onclick="mapaNormal()" style="display: none;" id="fechar_mapa_botao">Fechar Mapa</button>
-        <div id="mapa" style="height: 400px; width: 100%; margin-top: 20px;"></div>
+        
+        <div id="mapa" class="map-default-position">
+            <button onclick="mapaTelaCheia()" class="map-button" id="telacheia_mapa_botao">[ &nbsp; ]</button>
+            <button onclick="mapaNormal()" class="map-button close" style="display: none;" id="fechar_mapa_botao">✕</button>
+            <div class="lista-enderecos-fullscreen">
+                <button onclick="toggleListaFullscreen()">endereços</button>
+                <ul>
+                </ul>
+            </div>
+        </div>
+        <dialog id="endereco_selecionado_dialog">
+            <p id="endereco_selecionado"></p>
+        </dialog>
     </div>
     <script src="www/scrips.js"></script>
     <script src="www/map.js"></script>
