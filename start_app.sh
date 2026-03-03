@@ -1,5 +1,6 @@
 
 IMAGE_NAME=congguaraninorte-front
+VPS_NETWORK=vps-network
 
 echo "removendo node modules"
 rm node_modules -r
@@ -11,4 +12,5 @@ echo "Contruindo imagem"
 docker build -t $IMAGE_NAME .
 
 echo "Contruindo Container"
-docker run -d -p 3000:3000 --name $IMAGE_NAME $IMAGE_NAME
+# docker run -d -p 3000:3000 --name $IMAGE_NAME $IMAGE_NAME
+docker run -d --network $VPS_NETWORK --name $IMAGE_NAME $IMAGE_NAME

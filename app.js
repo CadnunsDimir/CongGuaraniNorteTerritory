@@ -1,43 +1,31 @@
 import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import TerritorioService from './core/TerritorioService.js';
-import GetListaTerritorios from './core/ListaTerritoriosArray.js';
+
+import TerritorioController from './core/controller/TerritoryController.js';
+import FrontEndController from './core/controller/FrontEndController.js';
+import AdminController from './core/controller/AdminController.js';
 
 const port = 3000;
-const apiPath = "/api";
-const wwwPath = "/www/";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
+app.use(express.json());
 
-app.get('/', (req, res) => {  
-  res.sendFile(path.join(__dirname,wwwPath,'index.html'));
-});
+FrontEndController(app);
+TerritorioController(app);
+AdminController(app);
 
-app.get('/www/:pathFile', (req, res) => {  
-  res.sendFile(path.join(__dirname,wwwPath, req.params.pathFile));
-});
+app.use((err, req, res, next) => {
+  var timestamp = new Date().toISOString();
+    console.error(timestamp, err);
 
-app.get(apiPath+"/territorios", (req, res) => {
-    res.send(TerritorioService.adicionarNovosTerritorios(GetListaTerritorios()));
-});
+    const status = err.status || 500;
+    const mensagem = err.message || 'Erro interno no servidor';
 
-app.get(apiPath+"/territorios/refresh", (req, res) => {
-    TerritorioService.refreshData(()=> 
-      res.send({
-        status: 200,
-        response: "OK"
-      })
-    );
-});
-
-app.get(apiPath+"/territorios/:numeroCartao", (req, res) => {
-  res.send(TerritorioService.getByCardNumber(req.params.numeroCartao));
+    res.status(status).json({
+        status: status,
+        message: mensagem,
+        timestamp
+    });
 });
 
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
 });
-
