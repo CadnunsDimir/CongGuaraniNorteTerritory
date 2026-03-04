@@ -1,11 +1,21 @@
+function getLocalDateTimeAsString() {
+    const dataLocal = new Date();
+    const offset = dataLocal.getTimezoneOffset() * 60000;
+    const dataAjustada = new Date(dataLocal.getTime() - offset);
+    return dataAjustada.toISOString().slice(0, -1);
+}
+
+function genericLog(type, ...message) {
+    var timestamp = getLocalDateTimeAsString();
+    console[type](timestamp, type.toUpperCase(), ...message);
+}
+
 const Logger = {
     info: (...message) => {
-        var timestamp = new Date().toISOString();
-        console.log(timestamp, ...message);
+        genericLog('log', ...message);
     },
     error: (...message)=> {
-        var timestamp = new Date().toISOString();
-        console.error(timestamp, ...message);
+        genericLog('error', ...message);
     }
 }
 
