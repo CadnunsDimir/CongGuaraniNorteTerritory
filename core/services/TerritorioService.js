@@ -1,3 +1,4 @@
+import Logger from "../Logger.js";
 import Utils from "../Utils.js";
 
 const TerritorioService = () => {
@@ -15,7 +16,7 @@ const TerritorioService = () => {
             .then(response => response.text())
             .then(data => {
                 listaEnderecos = Utils.parseCSV(data);
-                console.log("[CSV] Todas as "+ listaEnderecos.length+" enderecos foram carregados!");
+                Logger.info("[CSV] Todas as "+ listaEnderecos.length+" enderecos foram carregados!");
                 callback();
             })
             .catch(error => console.error("Erro ao buscar dados:", error));
@@ -24,7 +25,7 @@ const TerritorioService = () => {
     
     
     const getByCardNumber = (numeroCartao) => {
-        console.log("Carregando cartão "+numeroCartao);
+        Logger.info("Carregando cartão "+numeroCartao);
         var todosEnderecos = listaEnderecos.filter(endereco => endereco[cardFieldkey] === numeroCartao.toString());
         var corCartao = (todosEnderecos[0] || [])[colorFieldKey] || "#FFFFFF";
         return {

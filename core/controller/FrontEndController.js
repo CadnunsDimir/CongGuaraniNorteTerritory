@@ -1,22 +1,35 @@
 import path from 'path';
-import { fileURLToPath } from 'url';
+import LoginService from '../services/LoginService.js';
+import { cookieTokenKey } from './AdminController.js';
+import Logger from '../Logger.js';
 
-function FrontEndController(app) {
-    
+function FrontEndController(app) {    
     const wwwPath = "/www/";
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
+    const templatesPath = "/templates/";
+    const __rootFolder = process.cwd();
     
     app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, wwwPath, 'index.html'));
+        res.sendFile(path.join(__rootFolder, templatesPath, 'index.html'));
     });
 
     app.get('/admin', (req, res) => {
-        res.sendFile(path.join(__dirname, wwwPath, 'admin.html'));
+        var screen = "login.html";
+        if (req.cookies) {
+            const token = req.cookies[cookieTokenKey];
+            if(LoginService.tokenIsValid(token)){
+                screen = "admin-home.html";
+            } else {
+                Logger.error("Token inválido");
+            }
+        } else {
+            Logger.error("Cookies não encontrado")
+        }
+       
+        res.sendFile(path.join(__rootFolder, templatesPath, screen));
     });
 
     app.get('/www/:pathFile', (req, res) => {
-        res.sendFile(path.join(__dirname, wwwPath, req.params.pathFile));
+        res.sendFile(path.join(__rootFolder, wwwPath, req.params.pathFile));
     });
 }
 

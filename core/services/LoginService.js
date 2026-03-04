@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import Logger from '../Logger.js';
 
 function LoginService() {
     var tokenLimitTimeInMinutes = 30;
@@ -13,12 +14,12 @@ function LoginService() {
 
     return {
         login: (email, password)=> {
-            console.log("usuario: ", db[email])
             if(db[email] && db[email].password === password) {
                 db[email].token = randomUUID();
                 var validUntil = new Date(Date.now());
                 validUntil.setMinutes(validUntil.getMinutes() + tokenLimitTimeInMinutes);
                 db[email].validUntil = validUntil;
+                Logger.info("token gerado ", db[email].token);
                 return db[email].token;
             }
             throw { message : "Usuário não encontrado ou senha incorreta" , status: 401 };
@@ -26,17 +27,14 @@ function LoginService() {
 
         tokenIsValid: (authorizazionToken)=> {
             if (authorizazionToken) {
-                var tokenArray = authorizazionToken.split(" ");
-                if(tokenArray[0] === "Bearer"){
-                    for (const key in db) {                    
-                        const user = db[key];
-                        if(user.token === tokenArray[1] && user.validUntil > new Date(Date.now())) {
-                            return true;
-                        } 
-                    }
+                var token = authorizazionToken.replace("Bearer ");
+                for (const key in db) {                    
+                    const user = db[key];
+                    if(user.token === token && user.validUntil > new Date(Date.now())) {
+                        return true;
+                    } 
                 }
-            }
-            
+            }            
             return false;
         }
     }

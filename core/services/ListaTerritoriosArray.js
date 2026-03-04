@@ -1,3 +1,4 @@
+import Logger from "../Logger.js";
 import Utils from "../Utils.js";
 
 const ListaTerritorios = [];
@@ -10,7 +11,7 @@ fetch(urlCsvLocalidades)
     .then(response => response.text())
     .then(data => {
         var listaCartoes = Utils.parseCSV(data);
-        console.log("[CSV] Todos os " + listaCartoes.length + " cartoes foram carregados!");
+        Logger.info("[CSV] Todos os " + listaCartoes.length + " cartoes foram carregados!");
 
         ListaTerritorios.length = 0;
         ListaTerritorios.push(
@@ -25,7 +26,7 @@ fetch(urlCsvLocalidades)
             }
         })
     })
-    .catch(error => console.error("Erro ao buscar dados:", error));
+    .catch(error => Logger.error("Erro ao buscar dados:", error));
 
 const GetListaTerritorios = () => {
     return ListaTerritorios;
