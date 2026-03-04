@@ -1,9 +1,5 @@
 var itemPorColuna = 14;
 
-setInterval(()=> {
-    checkDialog();
-}, 1000);
-
 function carregarSelect() {
     var formSelect = document.getElementById("form_localide");
 
@@ -65,28 +61,7 @@ async function carregarEnderecos(numeroCartao) {
         table.appendChild(tRow);
     }
 
-    updateMarks(marks, color, onClickMark);
-}
-
-function onClickMark(event) {
-    var dialog = document.getElementById("endereco_selecionado_dialog");
-    var text = document.getElementById("endereco_selecionado");
-
-    text.innerText = event;
-    dialog.style.display = "block";
-    dialogCounter = 10;
-}
-
-var dialogCounter = 0;
-function checkDialog() {
-    var dialog = document.getElementById("endereco_selecionado_dialog");
-    var display = dialog.style.display;
-    if (display == "block") {
-        dialogCounter--;
-        if (dialogCounter <= 0) {
-            dialog.style.display = "none";
-        }
-    }
+    updateMarks(marks, color);
 }
 
 function inicializarTabela() {

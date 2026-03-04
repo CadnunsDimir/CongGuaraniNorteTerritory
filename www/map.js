@@ -7,6 +7,7 @@ var listaUl = null;
 var allMarks = [];
 var centerMark = [];
 var fullScreenStateKey = "b03cd13b-b378-479d-8f7c-12ec6f2ff40a";
+var isGeolocated = false;
 
 function inicializarMapa() {    
     mapDiv = document.getElementById("mapa");
@@ -21,7 +22,7 @@ function inicializarMapa() {
     var center = [-23.4866563, -46.5911963];
 
     L.marker(center).addTo(map)
-        .bindPopup('Inicio')
+        .bindPopup('Salão do Reino')
         .openPopup();
 
     document.addEventListener('fullscreenchange', () => {
@@ -33,28 +34,38 @@ function inicializarMapa() {
         }
     });
 
-    // centralizarMapa(center);
+    exibirGeoLocalizacao();
 
     if (localStorage.getItem(fullScreenStateKey) === "true") {
         mapaTelaCheia();
     }
 }
 
-function centralizarMapa(coordinates) {
-    if (!map) return;
-    map.setView(coordinates, 16);
-    map.invalidateSize();
-    addCenterMark(coordinates);
+function exibirGeoLocalizacao() {
+    var intervalInSeconds = 60;
+    if ("geolocation" in navigator) {   
+        isGeolocated = true;
+        const watchID = navigator.geolocation.watchPosition((position) => {
+            const { latitude, longitude } = position.coords;
+            addCenterMark([latitude, longitude]);
+            isGeolocated = true;
+        });
+        // Para parar de monitorar depois:
+        // navigator.geolocation.clearWatch(watchID);
+    } else {
+        isGeolocated = false;
+    }
 }
 
-function addCenterMark(coordinates) {
-    
+function addCenterMark(coordinates, isError = false) {
     centerMark.forEach(marker => map.removeLayer(marker));
     centerMark.length = 0;
+    var blue = "#2196F3";
+    var red = "rgb(223, 41, 0)"
 
     const gpsMarker = L.circleMarker(coordinates, {
         radius: 8,
-        fillColor: "#2196F3",
+        fillColor: !isError ?  blue : red,
         color: "#FFFFFF",
         weight: 2,
         opacity: 1,
@@ -63,7 +74,7 @@ function addCenterMark(coordinates) {
 
     const accuracyCircle = L.circle(coordinates, {
         radius: 100, // em metros
-        color: "#2196F3",
+        color: !isError ?  blue : red,
         fillOpacity: 0.15,
         weight: 1
     }).addTo(map);
@@ -93,17 +104,12 @@ function marker(coordinates, cor = '#FF0000') {
     const newMarker = L.marker([
         parseFloat(coordinates[0]), 
         parseFloat(coordinates[1])
-    ], { icon }).addTo(map);
+    ], { icon })
+    .bindPopup(coordinates[2] || '')
+    .addTo(map);
 
     allMarks.push(newMarker);
 
-    
-    // const newMarker = L.marker([
-    //     parseFloat(coordinates[0]), 
-    //     parseFloat(coordinates[1])
-    // ]).addTo(map);
-
-    
     return newMarker;
 }
 
@@ -124,7 +130,7 @@ function updateMarks(marks, color, onClickMark) {
             if(onClickMark && description) {
                 onClickMark(description);
             } else{
-                console.warn("evento de click não definido!")
+                console.warn("evento de 'onClickMark' não definido!")
             }
         })
     );
@@ -136,7 +142,9 @@ function updateMarks(marks, color, onClickMark) {
     map.invalidateSize();
 
     var center = getCenter(Alloordinates);    
-    addCenterMark(center);
+    if(!isGeolocated){
+        addCenterMark(center, true);
+    }
 }
 
 function getCenter(allCoordinates) {

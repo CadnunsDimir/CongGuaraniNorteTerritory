@@ -156,10 +156,27 @@
           padding: 5px;
       }
 
+      .card h1{
+        font-size: 15pt;
+      }
+
       .card form {
-          display: flex;
-          flex-direction: column;
           justify-content: flex-start;
+          flex-direction: row;
+          column-gap: 10px;
+      }
+
+      .card form input,
+      .card form select{ 
+        width: 100%;
+        padding: 8px 0;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+        height: 35px;
+      }
+
+      .card form label{
+        font-size: 10px;
       }
   }
 
