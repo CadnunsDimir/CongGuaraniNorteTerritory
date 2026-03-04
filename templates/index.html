@@ -33,13 +33,13 @@
                 id="fechar_mapa_botao">✕</button>            
         </div>
         <div class="lista-enderecos-fullscreen">
-            <button onclick="toggleListaFullscreen()">endereços</button>
+            <button onclick="toggleListaFullscreen()">
+                <span id="nome-cartao-fullscreen"></span>
+                <span class="label-button" id="lista-enderecos-fullscreen-label-button"> mostrar</span>
+            </button>
             <ul>
             </ul>
         </div>
-        <dialog id="endereco_selecionado_dialog">
-            <p id="endereco_selecionado"></p>
-        </dialog>
     </div>
     <script src="www/scrips.js"></script>
     <script src="www/map.js"></script>

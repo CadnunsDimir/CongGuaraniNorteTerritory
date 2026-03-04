@@ -1,8 +1,9 @@
 var itemPorColuna = 14;
+var listaEnderecosTelaCheia = null;
 
 function carregarSelect() {
     var formSelect = document.getElementById("form_localide");
-
+    
     fetch("/api/territorios")
         .then(response => response.json())
         .then(listaOption => {
@@ -24,8 +25,6 @@ function carregarSelect() {
         carregarEnderecos(cardNumber);
         atualizaUrl(cardNumber);
     });
-
-    
 }
 
 async function carregarEnderecos(numeroCartao) {
@@ -37,7 +36,8 @@ async function carregarEnderecos(numeroCartao) {
     var duasColunas = cartao.enderecos.length > itemPorColuna;
     var marks = cartao.enderecos.map(e => [e.lat, e.long, e.endereco]);
     var color = cartao.corCartao;
-    atualizarListaFullscreen(cartao.enderecos.map(x=>x.endereco));
+    atualizarTituloFullscreen();
+    atualizarListaFullscreen(cartao.enderecos);
 
     for (let i = 0; i < itemPorColuna; i++) {
         var endereco = cartao.enderecos[i];
@@ -48,20 +48,54 @@ async function carregarEnderecos(numeroCartao) {
         tCell.innerText = address.replace('"', "");
         tRow.appendChild(tCell);
 
+        clickTableCell(tCell, endereco);
+
         if (duasColunas) {
             var tCell2 = document.createElement("td");
             tCell2.innerText = address.replace('"', "");
             tRow.appendChild(tCell2);
 
             var endereco2 = cartao.enderecos[itemPorColuna + i];
-            if(endereco2)
+            if(endereco2) {
                 tCell2.innerText = endereco2.endereco.replace('"', "");
+                clickTableCell(tCell2, endereco2);
+            }
+                
         }
 
         table.appendChild(tRow);
     }
 
     updateMarks(marks, color);
+}
+
+function clickTableCell(tCell, endereco) {
+    tCell.addEventListener("click", ()=>{
+        var coordinates = [endereco.lat, endereco.long];
+        map.setView(coordinates, 16);
+    });
+}
+
+function atualizarTituloFullscreen() {
+    var nomeCartaoFullscreen = document.getElementById("nome-cartao-fullscreen");
+    var select = document.getElementById("form_localide");
+    const indice = select.selectedIndex;
+    const tituloCartao = select.options[indice].text;
+    nomeCartaoFullscreen.innerText = tituloCartao;
+}
+
+function atualizarListaFullscreen(enderecos) {
+    listaUl = listaEnderecosTelaCheia.getElementsByTagName("ul")[0];
+    listaUl.innerHTML = "";
+    enderecos.forEach(endereco=> {
+        var listItem = document.createElement("li");
+        listItem.innerText = endereco.endereco;
+        listaUl.appendChild(listItem);
+        listItem.addEventListener("click", ()=>{
+            var coordinates = [endereco.lat, endereco.long];
+            map.setView(coordinates, 16);
+        });
+    });
 }
 
 function inicializarTabela() {

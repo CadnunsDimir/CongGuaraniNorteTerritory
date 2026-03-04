@@ -137,6 +137,10 @@
       border-radius: 4px;
   }
 
+  .lista-enderecos-fullscreen button .label-button{
+    font-size: 9px;
+  }
+
   .lista-enderecos-fullscreen ul {
       list-style: none;
       width: 100%;

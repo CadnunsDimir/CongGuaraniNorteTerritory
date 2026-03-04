@@ -2,7 +2,6 @@ var map = null;
 var markerAtual = null;
 var telaCheiaBotao = null;
 var fecharBotao = null;
-var listaEnderecosTelaCheia = null;
 var listaUl = null;
 var allMarks = [];
 var centerMark = [];
@@ -13,7 +12,7 @@ function inicializarMapa() {
     mapDiv = document.getElementById("mapa");
     fecharBotao = document.getElementById("fechar_mapa_botao");
     telaCheiaBotao = document.getElementById("telacheia_mapa_botao");
-    listaEnderecosTelaCheia = document.getElementsByClassName("lista-enderecos-fullscreen")[0]
+    listaEnderecosTelaCheia = document.getElementsByClassName("lista-enderecos-fullscreen")[0];    
 
     map = L.map('mapa').setView([-23.55, -46.63], 13);
 
@@ -42,7 +41,6 @@ function inicializarMapa() {
 }
 
 function exibirGeoLocalizacao() {
-    var intervalInSeconds = 60;
     if ("geolocation" in navigator) {   
         isGeolocated = true;
         const watchID = navigator.geolocation.watchPosition((position) => {
@@ -141,8 +139,9 @@ function updateMarks(marks, color, onClickMark) {
     });
     map.invalidateSize();
 
-    var center = getCenter(Alloordinates);    
+      
     if(!isGeolocated){
+        var center = getCenter(Alloordinates);  
         addCenterMark(center, true);
     }
 }
@@ -187,26 +186,13 @@ function mapaNormal() {
     map.invalidateSize();
 }
 
-function atualizarListaFullscreen(listaStrings) {
-    listaUl = listaEnderecosTelaCheia.getElementsByTagName("ul")[0];
-    listaUl.innerHTML = "";
-    listaStrings.forEach(text=> {
-        var listItem = document.createElement("li");
-        var position = listaStrings.indexOf(text);
-        listItem.innerText = text;
-        listaUl.appendChild(listItem);
-        listItem.addEventListener("click", ()=>{
-            console.log("click no endereco "+position);
-            var marker = allMarks[position];
-            map.setView(marker.getLatLng(), 16);
-        })
-    });
-}
-
 function toggleListaFullscreen() {
+    var labelButton = document.getElementById("lista-enderecos-fullscreen-label-button");
     if (listaUl.style.display == "block") {
-        hide(listaUl)
+        labelButton.innerText = "mostrar";
+        hide(listaUl);
     } else {
+        labelButton.innerText = "esconder";
         show(listaUl);
     }
 }
