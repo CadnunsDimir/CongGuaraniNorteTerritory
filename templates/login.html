@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="app-icon.png" type="image/png">
+    <title>Visualizador de Mapas - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="www/style.css">
+</head>
+
+<body class="center-content">
+    <div class="login-card">
+        <img src="www/app-icon.png" class="app-icon" alt="app icon">
+        <h1>
+            <span class="label-h1">Visualizador de Mapas</span><br>
+            Login Administrativo
+        </h1>
+        <form onsubmit="submitForm(event)" id="login-form">
+            <label for="email">email</label>
+            <input type="text" id="email" name="email">
+            <label for="password">senha</label>
+            <input type="password" name="password" id="password">
+            <button type="submit">Acessar</button>
+        </form>
+    </div>
+    <script>
+        function hideForm() {
+            document.getElementById("login-form").style.display = "none";
+        }
+        async function submitForm(event) {
+            event.preventDefault();
+            const formulario = document.querySelector('#login-form');
+            const formData = new FormData(formulario);
+            const login = Object.fromEntries(formData.entries());
+
+            try {
+                const resposta = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(login)
+                });
+
+                const resultado = await resposta.json();
+
+                if (resposta.ok && resultado.response && resultado.response.token) {
+                    showAlert('success', 'Login realizado com sucesso!');
+                    hideForm();
+                    setTimeout(()=> 
+                        window.location.href = '/admin',
+                        2000
+                    );
+                } else {
+                    formulario.reset();
+                    showAlert('warning', 'Verifique os dados inseridos e tente novamente!');      
+                }
+            } catch (erro) {
+                console.error('Erro na requisição:', erro);
+                showAlert('error','Erro ao conectar com o servidor.');
+            }
+        }
+
+        function showAlert(type, message) {
+            var typeEnum = {
+                success: "green",
+                error: "red",
+                warning: "yellow"
+            };
+
+            var color = typeEnum[type] || type.warning;
+            var dialog = document.createElement("dialog");
+            document.body.appendChild(dialog);
+            dialog.innerText = message;           
+
+            var style = {
+                border: `2px solid ${color}`,
+                display: "block",
+                top: "0",
+                marginTop: "40px",
+                boxShadow: "rgba(0, 0, 0, 0.2) 0px 1px 7px 0px, rgba(0, 0, 0, 0.19) 0px 3px 6px 0px;",
+                borderRadius: "5px"
+            };
+
+            for (const key in style) {                
+                dialog.style[key] = style[key];
+            }
+
+            setTimeout(() => {
+                dialog.parentElement.removeChild(dialog);
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>

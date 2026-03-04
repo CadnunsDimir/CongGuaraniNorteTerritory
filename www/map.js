@@ -33,7 +33,7 @@ function inicializarMapa() {
         }
     });
 
-    centralizarMapa(center);
+    // centralizarMapa(center);
 
     if (localStorage.getItem(fullScreenStateKey) === "true") {
         mapaTelaCheia();

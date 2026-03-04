@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+
+<body>
+    você está logado
+    <button id="btn-logout">logout</button>
+
+    <script>
+        const btnLogout = document.querySelector('#btn-logout');
+
+        btnLogout.addEventListener('click', async () => {
+            try {
+                const resposta = await fetch('/api/admin/logout', {
+                    method: 'GET',
+                    credentials: 'include' // Essencial para o navegador saber qual cookie limpar
+                });
+
+                if (resposta.ok) {
+                    // Após limpar o cookie no servidor, limpamos o estado local e redirecionamos
+                    window.location.href = '/admin';
+                }
+            } catch (erro) {
+                console.error('Erro ao deslogar:', erro);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="app-icon.png" type="image/png">
+    <title>Visualizador de Mapas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="www/style.css">
+</head>
+
+<body class="center-content">
+    <div class="card">
+        <h1>Cartão de Mapa de Território</h1>
+        <form action="">
+            <label for="form_localide">
+                Localidade
+                <select name="form_localide" id="form_localide"></select>
+            </label>
+            <label for="form_numero_territorio">
+                Terri. Nº
+                <input type="number" name="form_numero_territorio" id="form_numero_territorio" disabled value="1">
+            </label>
+        </form>
+        <table id="tabela_enderecos"></table>
+
+        <div id="mapa" class="map-default-position">
+            <button onclick="mapaTelaCheia()" class="map-button" id="telacheia_mapa_botao">[ &nbsp; ]</button>
+            <button onclick="mapaNormal()" class="map-button close" style="display: none;"
+                id="fechar_mapa_botao">✕</button>            
+        </div>
+        <div class="lista-enderecos-fullscreen">
+            <button onclick="toggleListaFullscreen()">endereços</button>
+            <ul>
+            </ul>
+        </div>
+        <dialog id="endereco_selecionado_dialog">
+            <p id="endereco_selecionado"></p>
+        </dialog>
+    </div>
+    <script src="www/scrips.js"></script>
+    <script src="www/map.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("Página carregada!");
+            inicializarMapa();
+            carregarSelect();
+            inicializarTabela();
+        });
+    </script>
+
+</body>
+
+</html>
