@@ -5,11 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+    <link rel="stylesheet" href="www/style.css">
 </head>
 
 <body>
     você está logado
     <button id="btn-logout">logout</button>
+    <button id="btn-refresh">refresh territorios</button>
+
+    <p>resultado chamada:</p>
+    <p id="resultado"></p>
 
     <script>
         const btnLogout = document.querySelector('#btn-logout');
@@ -27,6 +32,25 @@
                 }
             } catch (erro) {
                 console.error('Erro ao deslogar:', erro);
+            }
+        });
+
+        const btnRefresh = document.getElementById("btn-refresh");
+        const resultado = document.getElementById("resultado");
+
+        btnRefresh.addEventListener('click', async () => {
+            try {
+                const resposta = await fetch('/api/territorios/refresh', {
+                    method: 'GET',
+                    credentials: 'include' // Essencial para o navegador saber qual cookie limpar
+                });
+
+                if (resposta.ok) {
+                    resultado.innerText = "Territorios atualizados!"
+                }
+            } catch (erro) {
+                console.error('Erro ao atualizar:', erro);
+                resultado.innerText = "Erro: " +JSON.stringify(erro);
             }
         });
     </script>
