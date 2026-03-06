@@ -21,7 +21,7 @@ const TerritorioService = () => {
             .then(response => response.text())
             .then(data => {
                 listaEnderecos = Utils.parseCSV(data);
-                Logger.info("[CSV] Todas as "+ listaEnderecos.length+" enderecos foram carregados!");
+                Logger.info("[CSV] [Localidades] Todas as "+ listaEnderecos.length+" enderecos foram carregados!");
                 callback();
             })
             .catch(error => console.error("Erro ao buscar dados:", error));

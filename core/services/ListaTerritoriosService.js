@@ -14,7 +14,7 @@ function refresh() {
         .then(response => response.text())
         .then(data => {
             var listaCartoes = Utils.parseCSV(data);
-            Logger.info("[CSV] Todos os " + listaCartoes.length + " cartoes foram carregados!");
+            Logger.info("[CSV] [ListaTerritorios] Todos os " + listaCartoes.length + " cartoes foram carregados!");
 
             ListaTerritorios.length = 0;
             listaCartoes.forEach(c => {

@@ -1,5 +1,6 @@
 import TerritorioService from '../services/TerritorioService.js';
 import ListaTerritorioService from '../services/ListaTerritoriosService.js';
+import LoginService from '../services/LoginService.js';
 
 function TerritorioController(app) {
     const apiPath = "/api";
@@ -10,6 +11,7 @@ function TerritorioController(app) {
 
     app.get(apiPath + "/territorios/refresh", (req, res) => {
         ListaTerritorioService.refresh();
+        LoginService.refreshDb();
         TerritorioService.refreshData(() =>
             res.send({
                 status: 200,
