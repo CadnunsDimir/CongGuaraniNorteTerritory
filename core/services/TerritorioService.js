@@ -1,8 +1,13 @@
 import Logger from "../Logger.js";
 import Utils from "../Utils.js";
+import Environment from "../Environment.js";
 
 const TerritorioService = () => {
-    const urlCsv = "XPTO?output=csv";
+    const urlCsv = Utils.toUrl(Environment.dbCsvUrl, { 
+        gid: Environment.enderecosGid, 
+        output: 'csv' 
+    });
+
     const cardFieldkey = 1;
     const addressFieldKey = 2;
     const latKey = 4;

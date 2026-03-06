@@ -32,8 +32,16 @@ function parseCSV(csvString) {
     return rows;
 }
 
+function toUrl(urlString, queryParams) {
+    const url = new URL(urlString);
+    const params = { ...queryParams };
+    url.search = new URLSearchParams(params).toString();
+    return url;
+}
+
 const Utils = {
-    parseCSV
+    parseCSV,
+    toUrl
 };
 
 export default Utils;
