@@ -76,7 +76,19 @@ function LoginService() {
             return false;
         },
 
-        refreshDb
+        refreshDb,
+
+        findLoginByToken: (authorizazionToken)=> {
+            var token = authorizazionToken.replace("Bearer ");
+            for (const key in db) {                    
+                const user = db[key];
+                if(user.token === token) {
+                    var {email, login} = user;
+                    return { email, login };
+                }
+            }
+            return null;
+        }
     }
 }
 

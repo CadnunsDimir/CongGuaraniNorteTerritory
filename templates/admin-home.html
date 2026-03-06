@@ -8,16 +8,37 @@
     <link rel="stylesheet" href="www/style.css">
 </head>
 
-<body>
-    você está logado
-    <button id="btn-logout">logout</button>
-    <button id="btn-refresh">refresh territorios</button>
+<body class="center-content">
+    <div class="login-card">
+        <img src="www/app-icon.png" class="app-icon" alt="app icon">
+        <h1>
+            <span class="label-h1">Visualizador de Mapas</span><br>
+            Administração
+        </h1>
+        <p>Seja Bem Vindo, <span id="nome-usuario"></span></p>
+        <button id="btn-logout">logout</button>
+        <button id="btn-refresh">refresh territorios</button>
 
-    <p>resultado chamada:</p>
-    <p id="resultado"></p>
+        <p>resultado chamada:</p>
+        <p id="resultado"></p>
+    </div>
+    
 
     <script>
         const btnLogout = document.querySelector('#btn-logout');
+        const nomeUsuario = document.getElementById("nome-usuario");
+
+        fetch('/api/admin/user', {
+                method: 'GET',
+                credentials: 'include' // Essencial para o navegador saber qual cookie limpar
+        }).then(async (respostaAdminUserFetch) => {
+            if (respostaAdminUserFetch.ok) {
+                var { data } = await respostaAdminUserFetch.json();
+                nomeUsuario.innerText = data.login;
+            }
+        });
+
+               
 
         btnLogout.addEventListener('click', async () => {
             try {

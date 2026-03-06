@@ -45,6 +45,21 @@ function AdminController(app) {
         throw new Error("Usuário nao logado");
     });
 
+    app.get(basePath + "/user", (req, res)=>{
+        if (LoginService.tokenIsValid(req.headers.authorization)) {
+            return res.send({
+                message: "Usuário logado via Bearer token",
+                data: LoginService.findLoginByToken(req.headers.authorization)
+            });
+        } else if (LoginService.tokenIsValid(req.cookies[cookieTokenKey])) {
+            return res.send({
+                message: "Usuário logado via Bearer token",
+                data: LoginService.findLoginByToken(req.cookies[cookieTokenKey])
+            });
+        }
+        throw new Error("Usuário nao logado");
+    });
+
     app.get(basePath + '/logout', (req, res) => {
         res.clearCookie(cookieTokenKey, {
             httpOnly: true,
