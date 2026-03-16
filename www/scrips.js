@@ -1,13 +1,20 @@
 var itemPorColuna = 14;
 var listaEnderecosTelaCheia = null;
 
-function carregarSelect() {
-    var formSelect = document.getElementById("form_localide");
-    
+function loadTerritoryList(onLoadOk) {
     fetch("/api/territorios")
         .then(response => response.json())
         .then(listaOption => {
-            formSelect.innerHTML = "";
+            onLoadOk(listaOption)
+        })
+        .catch(error => console.error("Erro ao buscar dados:", error));
+}
+
+function carregarSelect() {
+    var formSelect = document.getElementById("form_localide");
+    
+    loadTerritoryList(listaOption=> {
+        formSelect.innerHTML = "";
             listaOption.forEach(op => {
                 var option = document.createElement("option");
                 option.innerText = op.localidade;
@@ -15,8 +22,7 @@ function carregarSelect() {
                 formSelect.appendChild(option);
             });
             formSelect.value = document.getElementById("form_numero_territorio").value;
-        })
-        .catch(error => console.error("Erro ao buscar dados:", error));
+    })
 
     formSelect.addEventListener("change", ev => {
         var inputNumeroTerritorio = document.getElementById("form_numero_territorio");
@@ -27,11 +33,19 @@ function carregarSelect() {
     });
 }
 
+async function loadTerritoryCard(territoryNumber) {
+    var cartao = await fetch("/api/territorios/" + territoryNumber)
+        .catch(error => console.error("Erro ao buscar dados:", error))
+        .then(res=> res.json());
+
+    return cartao;
+}
+
 async function carregarEnderecos(numeroCartao) {
     console.log("carregando cartão " + numeroCartao);
     var table = document.getElementById("tabela_enderecos");
     table.innerHTML = "";
-    var cartao = await fetch("/api/territorios/" + numeroCartao)
+    var cartao = await loadTerritoryCard(numeroCartao)
         .then(res=> res.json());
     var duasColunas = cartao.enderecos.length > itemPorColuna;
     var marks = cartao.enderecos.map(e => [e.lat, e.long, e.endereco]);

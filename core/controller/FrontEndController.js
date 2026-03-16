@@ -3,11 +3,11 @@ import LoginService from '../services/LoginService.js';
 import { cookieTokenKey } from './AdminController.js';
 import Logger from '../Logger.js';
 
-function FrontEndController(app) {    
+function FrontEndController(app) {
     const wwwPath = "/www/";
     const templatesPath = "/templates/";
     const __rootFolder = process.cwd();
-    
+
     app.get('/', (req, res) => {
         res.sendFile(path.join(__rootFolder, templatesPath, 'index.html'));
     });
@@ -16,7 +16,7 @@ function FrontEndController(app) {
         var screen = "login.html";
         if (req.cookies) {
             const token = req.cookies[cookieTokenKey];
-            if(LoginService.tokenIsValid(token)){
+            if (LoginService.tokenIsValid(token)) {
                 screen = "admin-home.html";
             } else {
                 Logger.error("Token inválido");
@@ -24,8 +24,23 @@ function FrontEndController(app) {
         } else {
             Logger.error("Cookies não encontrado")
         }
-       
+
         res.sendFile(path.join(__rootFolder, templatesPath, screen));
+    });
+
+    app.get('/admin/complete-map', (req, res) => {
+        if (req.cookies) {
+            const token = req.cookies[cookieTokenKey];
+            if (LoginService.tokenIsValid(token)) {
+                return res.sendFile(path.join(__rootFolder, templatesPath, "complete-map.html"));
+            } else {
+                Logger.error("Token inválido");
+            }
+        } else {
+            Logger.error("Cookies não encontrado")
+        }
+        res.redirect("/admin");
+
     });
 
     app.get('/www/:pathFile', (req, res) => {

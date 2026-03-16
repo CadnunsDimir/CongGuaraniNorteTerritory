@@ -146,6 +146,23 @@ function updateMarks(marks, color, onClickMark) {
     }
 }
 
+function addMarks(marks, color) {
+    var allMarks = [];
+
+    marks.forEach(m=> {
+        var newMark = marker(m, color);
+        allMarks.push(newMark);
+    });
+
+    var grupoMarcadores = L.featureGroup(allMarks).addTo(map);
+
+    return grupoMarcadores;
+}
+
+function removeFeatureGroup(featureGroup) {
+    map.removeLayer(featureGroup);
+}
+
 function getCenter(allCoordinates) {
     var total = allCoordinates.length;
     var soma = allCoordinates.reduce((acc,current)=> {
