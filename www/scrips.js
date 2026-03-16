@@ -45,8 +45,7 @@ async function carregarEnderecos(numeroCartao) {
     console.log("carregando cartão " + numeroCartao);
     var table = document.getElementById("tabela_enderecos");
     table.innerHTML = "";
-    var cartao = await loadTerritoryCard(numeroCartao)
-        .then(res=> res.json());
+    var cartao = await loadTerritoryCard(numeroCartao);
     var duasColunas = cartao.enderecos.length > itemPorColuna;
     var marks = cartao.enderecos.map(e => [e.lat, e.long, e.endereco]);
     var color = cartao.corCartao;
@@ -112,12 +111,12 @@ function atualizarListaFullscreen(enderecos) {
     });
 }
 
-function inicializarTabela() {
+async function inicializarTabela() {
     const params = new URLSearchParams(window.location.search);
     const cardNumber = params.get('cartao') || 1;
     document.getElementById("form_numero_territorio").value = cardNumber;
     document.getElementById("form_localide").value = cardNumber;
-    carregarEnderecos(cardNumber);
+    await carregarEnderecos(cardNumber);
 }
 
 function atualizaUrl(cardNumber) {
