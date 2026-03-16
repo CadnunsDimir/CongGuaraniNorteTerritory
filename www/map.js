@@ -38,6 +38,22 @@ function inicializarMapa() {
     if (localStorage.getItem(fullScreenStateKey) === "true") {
         mapaTelaCheia();
     }
+
+    var coordenadaText = document.getElementById("coordenadas");
+    map.on('click', (e) => {
+        console.log("Latitude: " + e.latlng.lat + ", Longitude: " + e.latlng.lng);
+        var text = e.latlng.lng+"\t"+e.latlng.lat;
+        coordenadaText.innerText = text;      
+    });
+
+    coordenadaText.addEventListener('click', ev => {
+        var text = ev.target.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Copied to clipboard: " + text);
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+        });
+    })
 }
 
 function exibirGeoLocalizacao() {

@@ -82,9 +82,9 @@
   }
 
   .map-button.close {
-      height: 45px;
-      width: 45px;
-      font-size: 30px;
+      height: 30px;
+      width: 30px;
+      font-size: 15px;
       padding: 0;
   }
 
@@ -106,7 +106,20 @@
 
   .map-default-position.lock .map-button {
     display: none !important;
-  } 
+  }
+
+  .map-default-position .coordinates{
+    z-index: 401;
+    position: relative;
+    left: 0;
+    text-align: center;
+    background: white;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 5px;
+    cursor: copy;
+    font-size: 5px;
+  }
 
   .marker-circulo {
       background-color: #2196F3;
