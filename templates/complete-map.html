@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/www/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Território Completo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
@@ -12,12 +13,16 @@
 </head>
 
 <body class="complete-map">
-    <div class="territory-card">
-        <label> 
+    <button class="show-hidden-list" onclick="showList()">selecionar territorios</button>
+    <div class="territory-card" id="lista-oculta">        
+        <div id="">
+            <label> 
             <input type="checkbox" name="check-all" id="check-all">
             Marcar Todos
-        </label>
-        <ul id="territoryList" class="territory-list"></ul>
+            </label>
+            <ul id="territoryList" class="territory-list"></ul>
+        </div>
+        
     </div>
     <div id="mapa" class="map-default-position fullscreen lock">
         <button onclick="mapaTelaCheia()" class="map-button" id="telacheia_mapa_botao">[ &nbsp; ]</button>
