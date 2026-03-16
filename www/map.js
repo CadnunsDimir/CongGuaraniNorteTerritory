@@ -39,7 +39,10 @@ function inicializarMapa() {
         mapaTelaCheia();
     }
 
-    var coordenadaText = document.getElementById("coordenadas");
+    var coordenadaText = document.createElement("p");
+    coordenadaText.classList.add("coordinates")
+    mapDiv.appendChild(coordenadaText);
+
     map.on('click', (e) => {
         console.log("Latitude: " + e.latlng.lat + ", Longitude: " + e.latlng.lng);
         var text = e.latlng.lng+"\t"+e.latlng.lat;
@@ -192,11 +195,15 @@ function getCenter(allCoordinates) {
 }
 
 function show(htmlElement) {
-    htmlElement.style.display = "block";
+    if (htmlElement) {
+        htmlElement.style.display = "block";    
+    }    
 }
 
 function hide(htmlElement) {
-    htmlElement.style.display = "none";
+    if (htmlElement) {
+        htmlElement.style.display = "none";    
+    }
 }
 
 function mapaTelaCheia(){
