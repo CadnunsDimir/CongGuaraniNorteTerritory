@@ -48,7 +48,7 @@
 
                 const resultado = await resposta.json();
 
-                if (resposta.ok && resultado.response && resultado.response.token) {
+                if (resposta.ok && resultado.status === 200) {
                     showAlert('success', 'Login realizado com sucesso!');
                     hideForm();
                     setTimeout(()=> 

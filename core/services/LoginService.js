@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import jwt from 'jsonwebtoken';
 import Logger from '../Logger.js';
 import Environment from "../Environment.js";
 import Utils from "../Utils.js";
@@ -53,27 +54,21 @@ function LoginService() {
         login: (email, password)=> {
             var login = findLogin(email);
             if(login && login.password === password) {
-                login.token = randomUUID();
+
+                const user = {
+                    email: login.email,
+                    login: login.login
+                };
+
+                const bearerToken = jwt.sign(user, Environment.AUTH_SECRET_KEY, { expiresIn: '1h' });
+                login.token = bearerToken;
                 var validUntil = new Date(Date.now());
                 validUntil.setMinutes(validUntil.getMinutes() + tokenLimitTimeInMinutes);
                 login.validUntil = validUntil;
-                Logger.info("token gerado ", login.token);
+                Logger.info("token gerado ***");
                 return login.token;
             }
             throw { message : "Usuário não encontrado ou senha incorreta" , status: 401 };
-        },
-
-        tokenIsValid: (authorizazionToken)=> {
-            if (authorizazionToken) {
-                var token = authorizazionToken.replace("Bearer ");
-                for (const key in db) {                    
-                    const user = db[key];
-                    if(user.token === token && user.validUntil > new Date(Date.now())) {
-                        return true;
-                    } 
-                }
-            }            
-            return false;
         },
 
         refreshDb,

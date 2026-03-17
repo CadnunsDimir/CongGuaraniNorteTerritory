@@ -1,7 +1,6 @@
 import path from 'path';
-import LoginService from '../services/LoginService.js';
-import { cookieTokenKey } from './AdminController.js';
 import Logger from '../Logger.js';
+import { authenticate } from '../Auth.js';
 
 function FrontEndController(app) {
     const wwwPath = "/www/";
@@ -12,35 +11,23 @@ function FrontEndController(app) {
         res.sendFile(path.join(__rootFolder, templatesPath, 'index.html'));
     });
 
-    app.get('/admin', (req, res) => {
+    app.get('/admin', authenticate, (req, res) => {
         var screen = "login.html";
-        if (req.cookies) {
-            const token = req.cookies[cookieTokenKey];
-            if (LoginService.tokenIsValid(token)) {
-                screen = "admin-home.html";
-            } else {
-                Logger.error("Token inválido");
-            }
+        if (req.isAuthenticated) {
+            screen = "admin-home.html";
         } else {
-            Logger.error("Cookies não encontrado")
+            Logger.error("Token inválido");
         }
-
         res.sendFile(path.join(__rootFolder, templatesPath, screen));
     });
 
-    app.get('/admin/complete-map', (req, res) => {
-        if (req.cookies) {
-            const token = req.cookies[cookieTokenKey];
-            if (LoginService.tokenIsValid(token)) {
-                return res.sendFile(path.join(__rootFolder, templatesPath, "complete-map.html"));
-            } else {
-                Logger.error("Token inválido");
-            }
+    app.get('/admin/complete-map', authenticate, (req, res) => {
+        if (req.isAuthenticated) {
+            return res.sendFile(path.join(__rootFolder, templatesPath, "complete-map.html"));
         } else {
-            Logger.error("Cookies não encontrado")
+            Logger.error("Token inválido");
         }
         res.redirect("/admin");
-
     });
 
     app.get('/www/:pathFile', (req, res) => {

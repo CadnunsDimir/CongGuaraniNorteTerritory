@@ -1,3 +1,4 @@
+import { authenticate } from "../Auth.js";
 import LoginService from "../services/LoginService.js";
 
 export const cookieTokenKey = "guarani_token";
@@ -16,7 +17,7 @@ function AdminController(app) {
     app.post(basePath + '/login', (req, res) => {
         validateLoginBody(req.body);
         var token = LoginService.login(req.body.email, req.body.password);
-        var validadeTokenMinutos = 15;
+        var validadeTokenMinutos = 60;
         res.cookie(cookieTokenKey, token, {
             httpOnly: true, 
             secure: true, 
@@ -25,36 +26,16 @@ function AdminController(app) {
         });
 
         res.send({
-            status: 200,
-            response: {
-                token
-            }
+            status: 200
         });
     });
 
-    app.get(basePath + "/islogged", (req, res)=>{
-        if (LoginService.tokenIsValid(req.headers.authorization)) {
-            return res.send({
-                message: "Usuário logado via Bearer token"
-            });
-        } else if (LoginService.tokenIsValid(req.cookies[cookieTokenKey])) {
-            return res.send({
-                message: "Usuário logado via Bearer token"
-            });
-        }
-        throw new Error("Usuário nao logado");
-    });
 
-    app.get(basePath + "/user", (req, res)=>{
-        if (LoginService.tokenIsValid(req.headers.authorization)) {
+    app.get(basePath + "/user", authenticate, (req, res)=>{
+        if (req.isAuthenticated) {
             return res.send({
-                message: "Usuário logado via Bearer token",
-                data: LoginService.findLoginByToken(req.headers.authorization)
-            });
-        } else if (LoginService.tokenIsValid(req.cookies[cookieTokenKey])) {
-            return res.send({
-                message: "Usuário logado via Bearer token",
-                data: LoginService.findLoginByToken(req.cookies[cookieTokenKey])
+                message: "Usuário logado via Cookie JWT",
+                data: req.user
             });
         }
         throw new Error("Usuário nao logado");

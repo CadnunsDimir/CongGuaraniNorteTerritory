@@ -1,11 +1,10 @@
+import { authenticate } from "../Auth.js";
 import EditarTerritorioService from "../services/EditarTerritorioService.js";
-import LoginService from "../services/LoginService.js";
-import { cookieTokenKey } from "./AdminController.js";
 
 function AdressesController(app) {
     const basePath = "/api/admin/territory/adresses";
-    app.post(basePath, async (req, res) => {
-        if (LoginService.tokenIsValid(req.cookies[cookieTokenKey])) {
+    app.post(basePath, authenticate, async (req, res) => {
+        if (req.isAuthenticated) {
             await EditarTerritorioService.insert(req.body);
             res.send({
                 status: 200,
