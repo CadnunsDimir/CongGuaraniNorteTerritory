@@ -14,6 +14,26 @@ fetch('/api/admin/user', {
     }
 });
 
+// fetch('/api/admin/territory/adresses', {
+//     method: 'POST',
+//     credentials: 'include',
+//     headers: {
+//         'Content-Type': 'application/json'
+//     },
+//     body: JSON.stringify({
+//         cor: '#FFF',
+//         cartao: 99,
+//         endereco: 'rua do teste, 25',
+//         lat: '-25',
+//         long: '-46'
+//     })
+// }).then(async (response) => {
+//     if (response.ok) {
+//         var data = await response.json();
+//         console.log(data);
+//     }
+// });
+
 setOnClick('#btn-logout', async () => {
     try {
         const resposta = await fetch('/api/admin/logout', {

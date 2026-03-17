@@ -5,6 +5,7 @@ import TerritorioController from './core/controller/TerritoryController.js';
 import FrontEndController from './core/controller/FrontEndController.js';
 import AdminController from './core/controller/AdminController.js';
 import Logger from './core/Logger.js';
+import AdressesController from './core/controller/AdressesController.js';
 
 const port = 3000;
 const app = express();
@@ -14,6 +15,7 @@ app.use(cookieParser());
 FrontEndController(app);
 TerritorioController(app);
 AdminController(app);
+AdressesController(app);
 
 app.use((err, req, res, next) => {
     Logger.error(err);
