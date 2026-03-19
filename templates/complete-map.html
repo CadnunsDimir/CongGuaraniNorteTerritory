@@ -54,6 +54,7 @@
                 </div>                
             </fieldset>
             <button>salvar</button>
+            <button type="button" id="delete-button" onclick="deleteAddress()" style="display: none;">excluir</button>
         </form>
         <button class="close-button" onclick="closeForm()">X</button>
     </dialog>
@@ -65,6 +66,7 @@
             mapHolder.inicializarMapa();
             mountTerritoryListHtml();
             mapHolder.setOnClickMark((data, marker) => {
+                if (isEditMode) return; // Prevent opening edit for another marker while editing
                 currentEditingMarker = marker;
                 showForm(data);
             })

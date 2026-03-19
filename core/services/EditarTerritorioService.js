@@ -29,8 +29,7 @@ async function insert(endereco) {
     Spreadsheet.appendRows('endereços', rows);
 }
 
-// deve ser no padrão abaixo
-// const range = 'Página1!A5:C5';
+
 async function update(enderecoAnterior, endereco) {
     var page = 'endereços';
     var enderecoColunm = "C";
@@ -40,7 +39,7 @@ async function update(enderecoAnterior, endereco) {
     } catch (error) {
         throw {
             status: 500,
-            message: "Erro ao consultar endereço: "+error
+            message: "Erro ao consultar endereço: " + error
         };
     }
 
@@ -62,11 +61,34 @@ async function update(enderecoAnterior, endereco) {
     await Spreadsheet.updateRows(page, line, row);
 }
 
+async function remove(endereco) {
+    var page = 'endereços';
+    var enderecoColunm = "C";
+    var line;
+    try {
+        line = await Spreadsheet.getRowIndexByValue(page, enderecoColunm, endereco);
+    } catch (error) {
+        throw {
+            status: 500,
+            message: "Erro ao consultar endereço: " + error
+        };
+    }
+
+    if (line < 1) {
+        throw {
+            status: 404,
+            message: "Endereço não encontrado"
+        };
+    }
+
+    await Spreadsheet.deleteRows(page, line);
+}
 
 function EditarTerritorioService() {
     return {
         insert,
-        update
+        update,
+        remove
     }
 }
 

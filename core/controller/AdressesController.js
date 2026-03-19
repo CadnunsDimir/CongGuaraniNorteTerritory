@@ -27,6 +27,17 @@ function AdressesController(app) {
                 data: "OK"
             });
     });
+
+    app.delete(basePath + "/:endereco", authenticateApi, async (req, res) => {
+        const { endereco } = req.params;
+        await EditarTerritorioService.remove(endereco);
+        await TerritorioService.refreshData();
+        res.status(200)
+            .json({
+                status: 200,
+                data: "OK"
+            });
+    });
 }
 
 export default AdressesController

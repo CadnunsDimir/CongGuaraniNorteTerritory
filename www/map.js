@@ -170,6 +170,8 @@ mapHolder = (() => {
             .bindPopup(endereco || '')
             .addTo(map);
 
+        newMarker.data = coordinates;
+
         allMarks.push(newMarker);
 
         return newMarker;

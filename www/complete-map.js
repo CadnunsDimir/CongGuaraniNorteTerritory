@@ -83,7 +83,7 @@ function showForm(addressData = null) {
     if (addressData) {
         isEditMode = true;
         enderecoAnterior = addressData.endereco;
-        currentEditingMarker = currentEditingMarker; // already set
+        htmlUtil.show(htmlUtil.get("#delete-button"));
         // Parse the address
         var parts = addressData.endereco.split(", ");
         var endereco = parts[0];
@@ -123,6 +123,7 @@ function closeForm() {
     htmlUtil.removeHide(htmlUtil.get("#showFormButton"));
     mapHolder.setShowMarkOnClick(false);
     mapHolder.setOnClickMap(null);
+    htmlUtil.hide(htmlUtil.get("#delete-button"));
     isEditMode = false;
     enderecoAnterior = null;
     currentEditingMarker = null;
@@ -236,4 +237,41 @@ async function submitForm(event) {
         showAlert('error', 'Erro ao conectar com o servidor.');
     }
     submitBtn.disabled = false;
+}
+
+async function deleteAddress() {
+    if (!confirm('Tem certeza que deseja excluir este endereço?')) return;
+
+    try {
+        const resposta = await fetch('/api/admin/territory/adresses/' + encodeURIComponent(enderecoAnterior), {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const resultado = await resposta.json();
+
+        if (resposta.ok && resultado.status === 200) {
+            showAlert('success', 'Endereço excluído com sucesso!');
+            closeForm();
+
+            if (currentEditingMarker) {
+                mapHolder.map.removeLayer(currentEditingMarker);
+                const cartao = currentEditingMarker.data.cartao;
+                if (cartao && selectedTerritories.includes(cartao)) {
+                    removeTerritoryFromMap(cartao);
+                    delete territoryCardsCache[cartao];
+                    await addTerritoryToMap(cartao);
+                }
+            }
+
+            
+        } else {
+            showAlert('warning', resultado.message || 'Erro ao excluir endereço!');
+        }
+    } catch (erro) {
+        console.error('Erro na requisição:', erro);
+        showAlert('error', 'Erro ao conectar com o servidor.');
+    }
 }

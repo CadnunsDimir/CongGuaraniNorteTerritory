@@ -122,13 +122,49 @@ var updateRows = async (page, rowIndex, row) => {
     }
 }
 
+var deleteRows = async (page, rowIndex) => {
+    try {
+        const request = {
+            spreadsheetId,
+            resource: {
+                requests: [{
+                    deleteRange: {
+                        range: {
+                            sheetId: await getSheetId(page),
+                            startRowIndex: rowIndex - 1,
+                            endRowIndex: rowIndex,
+                            startColumnIndex: 0,
+                            endColumnIndex: 7 // assuming 7 columns
+                        },
+                        shiftDimension: 'ROWS'
+                    }
+                }]
+            }
+        };
+
+        await sheets.spreadsheets.batchUpdate(request);
+        Logger.info(`[${page.toUpperCase()}] Linha ${rowIndex} deletada com sucesso.`);
+    } catch (err) {
+        Logger.error(`[${page.toUpperCase()}] Erro ao deletar linha ${rowIndex}: `, err);
+    }
+}
+
+var getSheetId = async (sheetName) => {
+    const response = await sheets.spreadsheets.get({
+        spreadsheetId,
+    });
+    const sheet = response.data.sheets.find(s => s.properties.title === sheetName);
+    return sheet.properties.sheetId;
+}
+
 var Spreadsheet = (() =>{
     return {
         appendRows,
         queryRows,
         getRowIndexByValue,
-        updateRows
+        updateRows,
+        deleteRows
     }
 })();
 
-export default Spreadsheet
+export default Spreadsheet;
