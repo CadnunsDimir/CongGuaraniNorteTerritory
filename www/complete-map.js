@@ -151,6 +151,8 @@ function showList() {
 
 async function submitForm(event) {
     event.preventDefault();
+    var submitBtn = htmlUtil.get("#edit-dialog-form button");
+    submitBtn.disabled = true;
     const formulario = htmlUtil.get('#edit-dialog-form');
     const formData = new FormData(formulario);
     const newAddress = Object.fromEntries(formData.entries());
@@ -177,8 +179,8 @@ async function submitForm(event) {
 
         const resultado = await resposta.json();
 
-        if (resposta.ok && resultado.status === 200) {
-            showAlert('success', 'Login realizado com sucesso!');
+        if (resposta.ok && resultado.status === 201) {
+            showAlert('success', 'Endereço adicionado com sucesso!');
             closeForm();
             if (selectedTerritories.includes(adresses.cartao)) {
                 removeTerritoryFromMap(adresses.cartao);
@@ -188,9 +190,11 @@ async function submitForm(event) {
         } else {
             formulario.reset();
             showAlert('warning', resultado.message || 'Verifique os dados inseridos e tente novamente!');
+
         }
     } catch (erro) {
         console.error('Erro na requisição:', erro);
         showAlert('error', 'Erro ao conectar com o servidor.');
     }
+    submitBtn.disabled = false;
 }

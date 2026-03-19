@@ -1,6 +1,7 @@
 import { google } from 'googleapis';
 import path from 'path';
 import Environment from "./Environment.js";
+import Logger from './Logger.js';
 
 const __rootFolder = process.cwd();
 const KEYFILEPATH = path.join(__rootFolder, 'google_auth', 'credentials.json');
@@ -52,13 +53,13 @@ var queryRows = async (range) => {
         const rows = response.data.values;
 
         if (!rows || rows.length === 0) {
-            console.log('Nenhum dado encontrado na planilha.');
+            Logger.info('Nenhum dado encontrado na planilha.');
             return;
         }
 
         return rows;
     } catch (err) {
-        console.error('Erro ao ler a planilha:', err);
+        Logger.error('Erro ao ler a planilha:', err);
     }
 }
 

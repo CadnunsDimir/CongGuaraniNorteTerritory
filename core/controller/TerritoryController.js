@@ -9,15 +9,14 @@ function TerritorioController(app) {
         res.send(TerritorioService.adicionarNovosTerritorios(ListaTerritorioService.getList()));
     });
 
-    app.get(apiPath + "/territorios/refresh", (req, res) => {
-        ListaTerritorioService.refresh();
-        LoginService.refreshDb();
-        TerritorioService.refreshData(() =>
-            res.send({
-                status: 200,
-                response: "OK"
-            })
-        );
+    app.get(apiPath + "/territorios/refresh", async (req, res) => {
+        await ListaTerritorioService.refresh();
+        await LoginService.refreshDb();
+        await TerritorioService.refreshData();
+        res.send({
+            status: 200,
+            response: "OK"
+        })
     });
 
     app.get(apiPath + "/territorios/:numeroCartao", (req, res) => {

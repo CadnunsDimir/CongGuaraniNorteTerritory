@@ -7,13 +7,12 @@ function AdressesController(app) {
     app.post(basePath, authenticate, async (req, res) => {
         if (req.isAuthenticated) {
             await EditarTerritorioService.insert(req.body);
-            TerritorioService.refreshData(()=>{
-                res.send({
-                    status: 200,
+            await TerritorioService.refreshData();
+            res.status(201)
+                .json({
+                    status: 201,
                     data: "OK"
-                });
-            })
-            
+                });            
         } else {
             throw { 
                 message: "Usuário não autenticado",
