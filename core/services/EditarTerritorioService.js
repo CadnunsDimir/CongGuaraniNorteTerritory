@@ -18,8 +18,14 @@ async function getSheetsClient() {
 
 var sheets = await getSheetsClient();
 
+function formatNumber(num) {
+    return num < 10 ? '0'+num : num.toString();
+}
+
 async function insert(endereco) {
     var range = '\'endereços\'!A1';
+    var date = new Date(Date.now());
+    var dateAsString = formatNumber(date.getDate())+"/"+formatNumber(date.getMonth()+1)+"/"+date.getFullYear();
 
     const rows = [
         [
@@ -27,9 +33,15 @@ async function insert(endereco) {
             endereco.cartao,
             endereco.endereco,
             endereco.long,
-            endereco.lat
+            endereco.lat,
+            dateAsString,
+            dateAsString
         ]
     ];
+
+    if(rows[0].filter(x=> !!x).length !== rows[0].length){
+        throw new Error("endereço inválido");
+    }
 
     const resource = {
         values: rows,

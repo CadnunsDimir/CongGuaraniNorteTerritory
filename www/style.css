@@ -1,3 +1,8 @@
+  
+  .hide {
+    display: none;
+  }
+
   .center-content {
       display: flex;
       justify-content: center;
@@ -88,6 +93,19 @@
       padding: 0;
   }
 
+  .map-button.new {
+    left: 10px;
+    top: 144px;
+    font-size: 20px;
+    height: 30px;
+    width: 81px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: auto;
+  }
+
   .map-default-position {
       height: 300px;
       width: 100%;
@@ -102,10 +120,6 @@
       top: 0;
       left: 0;
       margin-top: 0;
-  }
-
-  .map-default-position.lock .map-button {
-    display: none !important;
   }
 
   .map-default-position .coordinates{
@@ -298,6 +312,53 @@
     display: flex;
     column-gap: 10px;
     align-items: center;
+  }
+
+  dialog.edit-dialog{
+    max-width: 360px;
+    padding-top: 30px;
+    box-sizing: content-box;
+    bottom: 0;
+    margin: 10px;
+    left: calc(50vw - 180px);
+  }
+
+  dialog.edit-dialog .close-button{
+    top: 10px;
+    right: 10px;
+    position: absolute;
+  }
+
+  dialog.edit-dialog form{
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+  }
+
+  dialog.edit-dialog form label{
+    font-size: 5pt;
+    display: flex;
+    flex-direction: column;
+    row-gap: 2px;
+  }
+
+  dialog.edit-dialog form input, dialog.edit-dialog form select{
+    height: 25px;
+    box-sizing: border-box;
+  }
+
+  .row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .row input{
+    flex: 1;       /* Divide a largura igualmente */
+    padding: 10px; /* Adiciona espaçamento interno */
+    box-sizing: border-box;
+        width: 100%;
   }
 
   input[type=checkbox] {

@@ -24,16 +24,45 @@
         </div>
         
     </div>
-    <div id="mapa" class="map-default-position fullscreen lock">
-        <button onclick="mapaTelaCheia()" class="map-button" id="telacheia_mapa_botao">[ &nbsp; ]</button>
-        <button onclick="mapaNormal()" class="map-button close" style="display: none;" id="fechar_mapa_botao">✕</button>
+    <div id="mapa" class="map-default-position fullscreen lock" allow-edition="true">
+        <button onclick="showForm()" class="map-button new" id="showFormButton">+ novo</button>
     </div>
+    <dialog class="edit-dialog hide" id="edit-dialog">
+        <form id="edit-dialog-form" onsubmit="submitForm(event)">
+            <label>
+                Cartão 
+                <select name="cartao" id="form_numerocartao">
+                </select>
+            </label>
+            <label>
+                Endereço 
+                <input type="text" name="endereco" id="form_endereco">
+            </label>
+            <label>
+                Número 
+                <input type="text" name="numeroCasa" id="form_numerocasa">
+            </label>
+            <label>
+                Obs.: 
+                <input type="text" name="obs" id="form_numerocasa">
+            </label>
+            <fieldset>
+                Coordenadas
+                <div class="row">
+                    <input type="text" readonly name="lat" id="form_lat">
+                    <input type="text" readonly name="long" id="form_long">
+                </div>                
+            </fieldset>
+            <button>salvar</button>
+        </form>
+        <button class="close-button" onclick="closeForm()">X</button>
+    </dialog>
     <script src="/www/scrips.js"></script>
     <script src="/www/map.js"></script>
     <script src="/www/complete-map.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            inicializarMapa();
+            mapHolder.inicializarMapa();
             mountTerritoryListHtml();
         });
     </script>

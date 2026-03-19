@@ -1,6 +1,7 @@
  var territoryCardsCache = {};
  var territoryMarksCache = {};
  var selectedTerritories = JSON.parse(localStorage.getItem("selectedTerritories") || "[]");
+ var territorios = [];
 
  function mountTerritoryListHtml() {
     var checkAll = document.getElementById("check-all");
@@ -9,6 +10,7 @@
     checkAll.checked = true;
 
     loadTerritoryList(data => {
+        territorios = data;
         territoryList.innerHTML = "";
         data.forEach(async item=> {
             var li = document.createElement("li");
@@ -25,7 +27,7 @@
                     if (!selectedTerritories.includes(territoryNumber)) {
                         await addTerritoryToMap(territoryNumber);
                         paintListItem(li, territoryNumber);
-                    }                    
+                    }
                 } else {
                     removeTerritoryFromMap(territoryNumber);
                     removePaintListItem(li);
@@ -37,6 +39,7 @@
             li.appendChild(label);
             label.appendChild(checkBox);
             label.appendChild(textNode);
+            addOptionOnForm(item.numeroCartao, item.localidade);
 
             if (selectedTerritories.includes(item.numeroCartao.toString())) {
                 checkBox.checked = true;
@@ -60,9 +63,43 @@
     centralizarOnLoad();
 }
 
+function addOptionOnForm(territoryNumber, neighborhoood) {
+    var option = document.createElement("option");
+    option.value = territoryNumber;
+    option.innerText = neighborhoood;
+    htmlUtil.get("#form_numerocartao").appendChild(option);
+}
+
+function showForm() {
+    var latInput = htmlUtil.get("#form_lat");
+    var longInput = htmlUtil.get("#form_long");
+
+    htmlUtil.hide(htmlUtil.get("#showFormButton"));
+    htmlUtil.show(htmlUtil.get("#edit-dialog"));
+
+    setTimeout(()=> {
+        mapHolder.setShowMarkOnClick(true);
+
+        mapHolder.setOnClickMap(coordinates => {
+            latInput.value = coordinates.lat;
+            longInput.value = coordinates.long;
+        });
+    });
+    
+}
+
+function closeForm() {
+    var form = htmlUtil.get("#edit-dialog-form");
+    form.reset();
+    htmlUtil.hide(htmlUtil.get("#edit-dialog"));
+    htmlUtil.removeHide(htmlUtil.get("#showFormButton"));
+    mapHolder.setShowMarkOnClick(false);
+    mapHolder.setOnClickMap(null);
+}
+
 function centralizarOnLoad() {
     var center = [-23.4866563, -46.5911963];
-    map.setView(center, 15);
+    mapHolder.showLocation(center, 15);
 }
 
 function paintListItem(li, territoryNumber) {
@@ -89,7 +126,7 @@ async function addTerritoryToMap(territoryNumber){
      var marks = territoryCard.enderecos.map(e => [e.lat, e.long, e.endereco]);
     var color = territoryCard.corCartao;
 
-    var groupMarks = addMarks(marks, color);
+    var groupMarks = mapHolder.addMarks(marks, color);
     territoryCard.showOnStart = true;
     territoryMarksCache[territoryNumber] = groupMarks;
     if(!selectedTerritories.includes(territoryNumber))
@@ -99,7 +136,7 @@ async function addTerritoryToMap(territoryNumber){
 
 function removeTerritoryFromMap(territoryNumber) {
     var groupMarks = territoryMarksCache[territoryNumber];
-    removeFeatureGroup(groupMarks);
+    mapHolder.removeFeatureGroup(groupMarks);
     territoryMarksCache[territoryNumber] = null;
     territoryCardsCache[territoryNumber].showOnStart = false;
     selectedTerritories = selectedTerritories.filter(x=> x !== territoryNumber);
@@ -110,4 +147,50 @@ function removeTerritoryFromMap(territoryNumber) {
 function showList() {
     var lista = document.getElementById("lista-oculta");
     lista.style.display = lista.style.display == 'block' ? 'none' : 'block';
+}
+
+async function submitForm(event) {
+    event.preventDefault();
+    const formulario = htmlUtil.get('#edit-dialog-form');
+    const formData = new FormData(formulario);
+    const newAddress = Object.fromEntries(formData.entries());
+    const cor = territorios.filter(x=> x.numeroCartao === newAddress.cartao)[0].cor;
+
+    console.log(newAddress);
+
+    var obs = newAddress.obs ? " - "+newAddress.obs : "";
+
+    const adresses = {
+        ...newAddress,
+        cor,
+        endereco: newAddress.endereco +", "+newAddress.numeroCasa + obs
+    };
+
+    try {
+        const resposta = await fetch('/api/admin/territory/adresses', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(adresses)
+        });
+
+        const resultado = await resposta.json();
+
+        if (resposta.ok && resultado.status === 200) {
+            showAlert('success', 'Login realizado com sucesso!');
+            closeForm();
+            if (selectedTerritories.includes(adresses.cartao)) {
+                removeTerritoryFromMap(adresses.cartao);
+                delete territoryCardsCache[adresses.cartao];
+                await addTerritoryToMap(adresses.cartao);
+            }
+        } else {
+            formulario.reset();
+            showAlert('warning', resultado.message || 'Verifique os dados inseridos e tente novamente!');
+        }
+    } catch (erro) {
+        console.error('Erro na requisição:', erro);
+        showAlert('error', 'Erro ao conectar com o servidor.');
+    }
 }

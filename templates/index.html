@@ -28,8 +28,8 @@
         <table id="tabela_enderecos"></table>
 
         <div id="mapa" class="map-default-position">
-            <button onclick="mapaTelaCheia()" class="map-button" id="telacheia_mapa_botao">[ &nbsp; ]</button>
-            <button onclick="mapaNormal()" class="map-button close" style="display: none;"
+            <button onclick="mapHolder.mapaTelaCheia()" class="map-button" id="telacheia_mapa_botao">[ &nbsp; ]</button>
+            <button onclick="mapHolder.mapaNormal()" class="map-button close" style="display: none;"
                 id="fechar_mapa_botao">✕</button>      
         </div>
         <div class="lista-enderecos-fullscreen">
@@ -46,9 +46,14 @@
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
             console.log("Página carregada!");
-            inicializarMapa();
-            carregarSelect();
-            inicializarTabela();
+            try {
+                mapHolder.inicializarMapa();
+                carregarSelect();
+                await inicializarTabela();
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao carregar página: "+error);
+            }            
         });
     </script>
 

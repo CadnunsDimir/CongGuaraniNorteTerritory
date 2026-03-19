@@ -1,6 +1,25 @@
 var itemPorColuna = 14;
 var listaEnderecosTelaCheia = null;
 
+htmlUtil = {
+    show: (htmlElement) => {
+        if (htmlElement) {
+            htmlElement.style.display =  "block";
+        }
+    },
+    removeHide: (htmlElement) => {
+        if (htmlElement) {
+            htmlElement.style.display =  "";
+        }
+    },
+    hide: (htmlElement) => {
+        if (htmlElement) {
+            htmlElement.style.display = "none";
+        }
+    },
+    get: (selector) => document.querySelector(selector),
+}
+
 function loadTerritoryList(onLoadOk) {
     fetch("/api/territorios")
         .then(response => response.json())
@@ -12,16 +31,16 @@ function loadTerritoryList(onLoadOk) {
 
 function carregarSelect() {
     var formSelect = document.getElementById("form_localide");
-    
-    loadTerritoryList(listaOption=> {
+
+    loadTerritoryList(listaOption => {
         formSelect.innerHTML = "";
-            listaOption.forEach(op => {
-                var option = document.createElement("option");
-                option.innerText = op.localidade;
-                option.setAttribute("value", op.numeroCartao);
-                formSelect.appendChild(option);
-            });
-            formSelect.value = document.getElementById("form_numero_territorio").value;
+        listaOption.forEach(op => {
+            var option = document.createElement("option");
+            option.innerText = op.localidade;
+            option.setAttribute("value", op.numeroCartao);
+            formSelect.appendChild(option);
+        });
+        formSelect.value = document.getElementById("form_numero_territorio").value;
     })
 
     formSelect.addEventListener("change", ev => {
@@ -36,7 +55,7 @@ function carregarSelect() {
 async function loadTerritoryCard(territoryNumber) {
     var cartao = await fetch("/api/territorios/" + territoryNumber)
         .catch(error => console.error("Erro ao buscar dados:", error))
-        .then(res=> res.json());
+        .then(res => res.json());
 
     return cartao;
 }
@@ -69,23 +88,23 @@ async function carregarEnderecos(numeroCartao) {
             tRow.appendChild(tCell2);
 
             var endereco2 = cartao.enderecos[itemPorColuna + i];
-            if(endereco2) {
+            if (endereco2) {
                 tCell2.innerText = endereco2.endereco.replace('"', "");
                 clickTableCell(tCell2, endereco2);
             }
-                
+
         }
 
         table.appendChild(tRow);
     }
 
-    updateMarks(marks, color);
+    mapHolder.updateMarks(marks, color);
 }
 
 function clickTableCell(tCell, endereco) {
-    tCell.addEventListener("click", ()=>{
+    tCell.addEventListener("click", () => {
         var coordinates = [endereco.lat, endereco.long];
-        map.setView(coordinates, 16);
+        mapHolder.showLocation(coordinates);
     });
 }
 
@@ -100,13 +119,13 @@ function atualizarTituloFullscreen() {
 function atualizarListaFullscreen(enderecos) {
     listaUl = listaEnderecosTelaCheia.getElementsByTagName("ul")[0];
     listaUl.innerHTML = "";
-    enderecos.forEach(endereco=> {
+    enderecos.forEach(endereco => {
         var listItem = document.createElement("li");
         listItem.innerText = endereco.endereco;
         listaUl.appendChild(listItem);
-        listItem.addEventListener("click", ()=>{
+        listItem.addEventListener("click", () => {
             var coordinates = [endereco.lat, endereco.long];
-            map.setView(coordinates, 16);
+            mapHolder.showLocation(coordinates);
         });
     });
 }
@@ -123,4 +142,45 @@ function atualizaUrl(cardNumber) {
     const url = new URL(window.location.href);
     url.searchParams.set('cartao', String(cardNumber));
     window.history.replaceState({}, '', url.toString());
+}
+
+function toggleListaFullscreen() {
+    var labelButton = document.getElementById("lista-enderecos-fullscreen-label-button");
+    if (listaUl.style.display == "block") {
+        labelButton.innerText = "mostrar";
+        htmlUtil.hide(listaUl);
+    } else {
+        labelButton.innerText = "esconder";
+        htmlUtil.show(listaUl);
+    }
+}
+
+function showAlert(type, message) {
+    var typeEnum = {
+        success: "green",
+        error: "red",
+        warning: "yellow"
+    };
+
+    var color = typeEnum[type] || type.warning;
+    var dialog = document.createElement("dialog");
+    document.body.appendChild(dialog);
+    dialog.innerText = message;
+
+    var style = {
+        border: `2px solid ${color}`,
+        display: "block",
+        top: "0",
+        marginTop: "40px",
+        boxShadow: "rgba(0, 0, 0, 0.2) 0px 1px 7px 0px, rgba(0, 0, 0, 0.19) 0px 3px 6px 0px;",
+        borderRadius: "5px"
+    };
+
+    for (const key in style) {
+        dialog.style[key] = style[key];
+    }
+
+    setTimeout(() => {
+        dialog.parentElement.removeChild(dialog);
+    }, 5000);
 }

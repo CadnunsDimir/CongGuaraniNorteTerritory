@@ -27,6 +27,7 @@
             <button type="submit">Acessar</button>
         </form>
     </div>
+    <script src="/www/scrips.js"></script>
     <script>
         function hideForm() {
             document.getElementById("login-form").style.display = "none";
@@ -65,35 +66,7 @@
             }
         }
 
-        function showAlert(type, message) {
-            var typeEnum = {
-                success: "green",
-                error: "red",
-                warning: "yellow"
-            };
-
-            var color = typeEnum[type] || type.warning;
-            var dialog = document.createElement("dialog");
-            document.body.appendChild(dialog);
-            dialog.innerText = message;           
-
-            var style = {
-                border: `2px solid ${color}`,
-                display: "block",
-                top: "0",
-                marginTop: "40px",
-                boxShadow: "rgba(0, 0, 0, 0.2) 0px 1px 7px 0px, rgba(0, 0, 0, 0.19) 0px 3px 6px 0px;",
-                borderRadius: "5px"
-            };
-
-            for (const key in style) {                
-                dialog.style[key] = style[key];
-            }
-
-            setTimeout(() => {
-                dialog.parentElement.removeChild(dialog);
-            }, 5000);
-        }
+        
     </script>
 </body>
 

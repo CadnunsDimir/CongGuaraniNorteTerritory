@@ -20,6 +20,7 @@ function refresh() {
             listaCartoes.forEach(c => {
                 if (c[2] !== "localidade" && c[2] !== "Total") {
                     ListaTerritorios.push({
+                        cor: c[0],
                         numeroCartao: c[1],
                         localidade: c[2]
                     });
