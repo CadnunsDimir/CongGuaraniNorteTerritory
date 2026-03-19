@@ -11,6 +11,7 @@ mapHolder = (() => {
     var _showMarkOnClick = false;
     var selectedPositionMark = null;
     var _onClickMap = null;
+    var _onClickMark = null;
 
     function inicializarMapa() {
         mapDiv = document.getElementById("mapa");
@@ -107,7 +108,6 @@ mapHolder = (() => {
     }
 
     function addCenterMark(coordinates, isError = false) {
-        console.log("addCenterMark", coordinates);
         centerMark.forEach(marker => map.removeLayer(marker));
         centerMark.length = 0;
         var blue = "#2196F3";
@@ -136,11 +136,23 @@ mapHolder = (() => {
         if (!map) return;
         const iconSize = 24;
         const iconAnchor = iconSize / 2;
+        let lat, long, endereco;
+        if (Array.isArray(coordinates)) {
+            lat = coordinates[0];
+            long = coordinates[1];
+            endereco = coordinates[2] || "vazio";
+        } else {
+            lat = coordinates.lat;
+            long = coordinates.long;
+            endereco = coordinates.endereco || "vazio";
+        }
         const icon = L.divIcon({
             className: 'marker-circulo', // A classe CSS que criamos
             html: `<div 
             class="mapMark"
-            data-description="${coordinates[2] || "vazio"}" 
+            data-endereco="${endereco}"
+            data-lat="${lat}"
+            data-long="${long}"
             style="background-color: ${cor}; 
                            width: 100%; height: 100%; 
                            border-radius: 50%; 
@@ -152,10 +164,10 @@ mapHolder = (() => {
         });
 
         const newMarker = L.marker([
-            parseFloat(coordinates[0]),
-            parseFloat(coordinates[1])
+            parseFloat(lat),
+            parseFloat(long)
         ], { icon })
-            .bindPopup(coordinates[2] || '')
+            .bindPopup(endereco || '')
             .addTo(map);
 
         allMarks.push(newMarker);
@@ -163,7 +175,7 @@ mapHolder = (() => {
         return newMarker;
     }
 
-    function updateMarks(marks, color, onClickMark) {
+    function updateMarks(marks, color) {
         allMarks.forEach(marker => map.removeLayer(marker));
         allMarks = [];
         var Alloordinates = []
@@ -176,9 +188,9 @@ mapHolder = (() => {
 
         [...document.getElementsByClassName("mapMark")].forEach(m =>
             m.addEventListener("click", event => {
-                var description = event.currentTarget.dataset.description;
-                if (onClickMark && description) {
-                    onClickMark(description);
+                var data = event.currentTarget.dataset;
+                if (_onClickMark && data) {
+                    _onClickMark(data);
                 } else {
                     console.warn("evento de 'onClickMark' não definido!")
                 }
@@ -203,6 +215,11 @@ mapHolder = (() => {
 
         marks.forEach(m => {
             var newMark = marker(m, color);
+            newMark.on('click', ()=> {
+                if (_onClickMark) {
+                    _onClickMark(m, newMark);
+                }
+            });
             allMarks.push(newMark);
         });
 
@@ -258,11 +275,9 @@ mapHolder = (() => {
             selectedPositionMark = null;
         }
     };
-
     
-    var setOnClickMap = (callback) => {
-        _onClickMap = callback;
-    }
+    var setOnClickMap = (callback) => _onClickMap = callback;
+    var setOnClickMark = (callback)=> _onClickMark = callback;
 
     return {
         inicializarMapa,
@@ -273,6 +288,7 @@ mapHolder = (() => {
         addMarks,
         setShowMarkOnClick,
         removeFeatureGroup,
-        setOnClickMap
+        setOnClickMap,
+        setOnClickMark
     }
 })();

@@ -44,7 +44,7 @@
             </label>
             <label>
                 Obs.: 
-                <input type="text" name="obs" id="form_numerocasa">
+                <input type="text" name="obs" id="form_obs">
             </label>
             <fieldset>
                 Coordenadas
@@ -64,6 +64,10 @@
         document.addEventListener("DOMContentLoaded", () => {
             mapHolder.inicializarMapa();
             mountTerritoryListHtml();
+            mapHolder.setOnClickMark((data, marker) => {
+                currentEditingMarker = marker;
+                showForm(data);
+            })
         });
     </script>
 

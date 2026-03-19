@@ -2,6 +2,9 @@
  var territoryMarksCache = {};
  var selectedTerritories = JSON.parse(localStorage.getItem("selectedTerritories") || "[]");
  var territorios = [];
+ var isEditMode = false;
+ var enderecoAnterior = null;
+ var currentEditingMarker = null;
 
  function mountTerritoryListHtml() {
     var checkAll = document.getElementById("check-all");
@@ -70,19 +73,44 @@ function addOptionOnForm(territoryNumber, neighborhoood) {
     htmlUtil.get("#form_numerocartao").appendChild(option);
 }
 
-function showForm() {
+function showForm(addressData = null) {
     var latInput = htmlUtil.get("#form_lat");
     var longInput = htmlUtil.get("#form_long");
 
     htmlUtil.hide(htmlUtil.get("#showFormButton"));
     htmlUtil.show(htmlUtil.get("#edit-dialog"));
 
+    if (addressData) {
+        isEditMode = true;
+        enderecoAnterior = addressData.endereco;
+        currentEditingMarker = currentEditingMarker; // already set
+        // Parse the address
+        var parts = addressData.endereco.split(", ");
+        var endereco = parts[0];
+        var indexOfObsDivider = parts[1].indexOf("-");
+        var numeroCasa = indexOfObsDivider > 0 ? parts[1].substring(0, indexOfObsDivider) : parts[1];
+        var obs = indexOfObsDivider > 0? parts[1].substring(indexOfObsDivider+1, parts[1].length) : "";
+
+        htmlUtil.get("#form_numerocartao").value = addressData.cartao;
+        htmlUtil.get("#form_endereco").value = endereco;
+        htmlUtil.get("#form_numerocasa").value = numeroCasa.trim();
+        htmlUtil.get("#form_obs").value = obs.trim();
+        latInput.value = addressData.lat;
+        longInput.value = addressData.long;
+    } else {
+        isEditMode = false;
+        enderecoAnterior = null;
+    }
+
     setTimeout(()=> {
-        mapHolder.setShowMarkOnClick(true);
+        mapHolder.setShowMarkOnClick(!isEditMode);
 
         mapHolder.setOnClickMap(coordinates => {
             latInput.value = coordinates.lat;
             longInput.value = coordinates.long;
+            if (isEditMode && currentEditingMarker) {
+                currentEditingMarker.setLatLng([coordinates.lat, coordinates.long]);
+            }
         });
     });
     
@@ -95,6 +123,9 @@ function closeForm() {
     htmlUtil.removeHide(htmlUtil.get("#showFormButton"));
     mapHolder.setShowMarkOnClick(false);
     mapHolder.setOnClickMap(null);
+    isEditMode = false;
+    enderecoAnterior = null;
+    currentEditingMarker = null;
 }
 
 function centralizarOnLoad() {
@@ -123,7 +154,7 @@ async function addTerritoryToMap(territoryNumber){
         territoryCardsCache[territoryNumber] = territoryCard;        
     }
 
-     var marks = territoryCard.enderecos.map(e => [e.lat, e.long, e.endereco]);
+     var marks = territoryCard.enderecos.map(e => ({lat: e.lat, long: e.long, endereco: e.endereco, cartao: territoryNumber}));
     var color = territoryCard.corCartao;
 
     var groupMarks = mapHolder.addMarks(marks, color);
@@ -169,8 +200,15 @@ async function submitForm(event) {
     };
 
     try {
-        const resposta = await fetch('/api/admin/territory/adresses', {
-            method: 'POST',
+        let url = '/api/admin/territory/adresses';
+        let method = 'POST';
+        if (isEditMode) {
+            url += '/' + encodeURIComponent(enderecoAnterior);
+            method = 'PUT';
+        }
+
+        const resposta = await fetch(url, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -179,8 +217,9 @@ async function submitForm(event) {
 
         const resultado = await resposta.json();
 
-        if (resposta.ok && resultado.status === 201) {
-            showAlert('success', 'Endereço adicionado com sucesso!');
+        if (resposta.ok && (resultado.status === 201 || resultado.status === 200)) {
+            const message = isEditMode ? 'Endereço editado com sucesso!' : 'Endereço adicionado com sucesso!';
+            showAlert('success', message);
             closeForm();
             if (selectedTerritories.includes(adresses.cartao)) {
                 removeTerritoryFromMap(adresses.cartao);

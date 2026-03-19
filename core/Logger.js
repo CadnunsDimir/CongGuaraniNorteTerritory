@@ -7,7 +7,7 @@ function getLocalDateTimeAsString() {
 
 function genericLog(type, ...message) {
     var timestamp = getLocalDateTimeAsString();
-    console[type](timestamp, type.toUpperCase(), ...message);
+    console[type](timestamp, type.toUpperCase(), ...message.map(x=> JSON.stringify(x)));
 }
 
 const Logger = {

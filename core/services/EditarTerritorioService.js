@@ -33,7 +33,16 @@ async function insert(endereco) {
 // const range = 'Página1!A5:C5';
 async function update(enderecoAnterior, endereco) {
     var page = 'endereços';
-    var line = Spreadsheet.getRowIndexByValue(enderecoAnterior);
+    var enderecoColunm = "C";
+    var line;
+    try {
+        line = await Spreadsheet.getRowIndexByValue(page, enderecoColunm, enderecoAnterior);
+    } catch (error) {
+        throw {
+            status: 500,
+            message: "Erro ao consultar endereço: "+error
+        };
+    }
 
     if (line < 1) {
         throw {

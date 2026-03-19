@@ -17,7 +17,10 @@ function AdressesController(app) {
     app.put(basePath + "/:enderecoAnterior", authenticateApi, async (req, res) => {
         const { enderecoAnterior } = req.params;
         const endereco = req.body;
+        
         await EditarTerritorioService.update(enderecoAnterior, endereco);
+        await TerritorioService.refreshData();
+        
         res.status(200)
             .json({
                 status: 200,

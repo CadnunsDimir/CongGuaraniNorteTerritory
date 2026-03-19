@@ -6,6 +6,7 @@ import Logger from './Logger.js';
 const __rootFolder = process.cwd();
 const KEYFILEPATH = path.join(__rootFolder, 'google_auth', 'credentials.json');
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
+const spreadsheetId = Environment.spreadsheetId;
 
 const auth = new google.auth.GoogleAuth({
   keyFile: KEYFILEPATH,
@@ -28,11 +29,11 @@ var appendRows = async (page, rows) =>{
 
     try {
 
-        Logger.info('Tentando acessar a planilha:', Environment.spreadsheetId);
+        Logger.info('Tentando acessar a planilha:', spreadsheetId);
         Logger.info('No intervalo:', range);
 
         const result = await sheets.spreadsheets.values.append({
-            spreadsheetId: Environment.spreadsheetId,
+            spreadsheetId,
             range,
             valueInputOption: 'USER_ENTERED',
             requestBody: resource,
@@ -93,17 +94,24 @@ var updateRows = async (page, rowIndex, row) => {
         values: [[new Date().toLocaleDateString('pt-BR')]]
     };
 
+    var updateDateRange = `${page}!${updateDateColumn}${rowIndex}`;
+    var rowRange = `${page}!A${rowIndex}:E${rowIndex}`;
+
+    Logger.info("[Endereço] celulas que serão editadas", rowRange, updateDateRange);
+    Logger.info(resource.values);
+    Logger.info(updateDateValue.values);
+
     try {
         await sheets.spreadsheets.values.update({
             spreadsheetId,
-            range: `${page}!${updateDateColumn}${rowIndex}`,
+            range: updateDateRange,
             valueInputOption: 'USER_ENTERED',
             requestBody: updateDateValue,
         });
 
         await sheets.spreadsheets.values.update({
             spreadsheetId,
-            range: `${page}!A${rowIndex}:E:${rowIndex}`,
+            range: rowRange,
             valueInputOption: 'USER_ENTERED',
             requestBody: resource,
         });
