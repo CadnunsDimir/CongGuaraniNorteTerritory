@@ -63,10 +63,63 @@ var queryRows = async (range) => {
     }
 }
 
+var getRowIndexByValue = async (page, colunmLetter, searchedValue) => {
+    const response = await sheets.spreadsheets.values.get({
+        spreadsheetId,
+        range: `${page}!${colunmLetter}:${colunmLetter}`, 
+    });
+
+    const rows = response.data.values;
+
+    if (!rows || rows.length === 0) {
+        Logger.info('Planilha vazia.');
+        return -1;
+    }
+
+    const rowIndex = rows.findIndex(row => row[0] === searchedValue.trim());
+    return rowIndex + 1;
+}
+
+var updateRows = async (page, rowIndex, row) => {
+    var updateDateColumn = "G";
+
+    const resource = {
+        values: [
+            row
+        ]
+    };
+
+    const updateDateValue = {
+        values: [[new Date().toLocaleDateString('pt-BR')]]
+    };
+
+    try {
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `${page}!${updateDateColumn}${rowIndex}`,
+            valueInputOption: 'USER_ENTERED',
+            requestBody: updateDateValue,
+        });
+
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `${page}!A${rowIndex}:E:${rowIndex}`,
+            valueInputOption: 'USER_ENTERED',
+            requestBody: resource,
+        });
+
+        Logger.info(`[${page.toUpperCase()}] Linha ${rowIndex} atualizada com sucesso.`, );
+    } catch (err) {
+        Logger.error(`[${page.toUpperCase()}] Erro ao editar linha  ${rowIndex}: `, err);
+    }
+}
+
 var Spreadsheet = (() =>{
     return {
         appendRows,
-        queryRows
+        queryRows,
+        getRowIndexByValue,
+        updateRows
     }
 })();
 

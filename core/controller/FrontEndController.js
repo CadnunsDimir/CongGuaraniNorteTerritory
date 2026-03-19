@@ -1,6 +1,6 @@
 import path from 'path';
 import Logger from '../Logger.js';
-import { authenticate } from '../Auth.js';
+import { authenticateFront } from '../Auth.js';
 
 function FrontEndController(app) {
     const wwwPath = "/www/";
@@ -11,7 +11,7 @@ function FrontEndController(app) {
         res.sendFile(path.join(__rootFolder, templatesPath, 'index.html'));
     });
 
-    app.get('/admin', authenticate, (req, res) => {
+    app.get('/admin', authenticateFront, (req, res) => {
         var screen = "login.html";
         if (req.isAuthenticated) {
             screen = "admin-home.html";
@@ -21,7 +21,7 @@ function FrontEndController(app) {
         res.sendFile(path.join(__rootFolder, templatesPath, screen));
     });
 
-    app.get('/admin/complete-map', authenticate, (req, res) => {
+    app.get('/admin/complete-map', authenticateFront, (req, res) => {
         if (req.isAuthenticated) {
             return res.sendFile(path.join(__rootFolder, templatesPath, "complete-map.html"));
         } else {
