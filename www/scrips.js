@@ -1,4 +1,3 @@
-var itemPorColuna = 14;
 var listaEnderecosTelaCheia = null;
 
 htmlUtil = {
@@ -65,11 +64,11 @@ async function carregarEnderecos(numeroCartao) {
     var table = document.getElementById("tabela_enderecos");
     table.innerHTML = "";
     var cartao = await loadTerritoryCard(numeroCartao);
-    var duasColunas = cartao.enderecos.length > itemPorColuna;
     var marks = cartao.enderecos.map(e => [e.lat, e.long, e.endereco]);
     var color = cartao.corCartao;
     atualizarTituloFullscreen();
     atualizarListaFullscreen(cartao.enderecos);
+    var itemPorColuna = Math.round(cartao.enderecos.length / 2);
 
     for (let i = 0; i < itemPorColuna; i++) {
         var endereco = cartao.enderecos[i];
@@ -82,17 +81,13 @@ async function carregarEnderecos(numeroCartao) {
 
         clickTableCell(tCell, endereco);
 
-        if (duasColunas) {
-            var tCell2 = document.createElement("td");
-            tCell2.innerText = address.replace('"', "");
-            tRow.appendChild(tCell2);
+        var tCell2 = document.createElement("td");
+        tRow.appendChild(tCell2);
 
-            var endereco2 = cartao.enderecos[itemPorColuna + i];
-            if (endereco2) {
-                tCell2.innerText = endereco2.endereco.replace('"', "");
-                clickTableCell(tCell2, endereco2);
-            }
-
+        var endereco2 = cartao.enderecos[itemPorColuna + i];
+        if (endereco2) {
+            tCell2.innerText = endereco2.endereco.replace('"', "");
+            clickTableCell(tCell2, endereco2);
         }
 
         table.appendChild(tRow);
