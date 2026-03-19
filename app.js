@@ -18,9 +18,10 @@ AdminController(app);
 AdressesController(app);
 
 app.use((err, req, res, next) => {
-    Logger.error(err);
+    
     const status = err.status || 500;
     const mensagem = err.message || 'Erro interno no servidor';
+    Logger.error(mensagem);
 
     res.status(status).json({
         status: status,

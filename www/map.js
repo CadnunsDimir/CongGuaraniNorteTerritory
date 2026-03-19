@@ -13,6 +13,13 @@ mapHolder = (() => {
     var _onClickMap = null;
     var _onClickMark = null;
 
+    function triggerMapClick(coordinates) {
+        showClickMark([ coordinates.lat, coordinates.long]);
+        if (_onClickMap) {
+            _onClickMap(coordinates);
+        }
+    }
+
     function inicializarMapa() {
         mapDiv = document.getElementById("mapa");
         fecharBotao = document.getElementById("fechar_mapa_botao");
@@ -56,10 +63,7 @@ mapHolder = (() => {
             console.log("Latitude: " + coordinates.lat + ", Longitude: " + coordinates.long);
             var text = coordinates.long + " \t" + coordinates.lat;
             coordenadaText.innerText = text;
-            showClickMark([ coordinates.lat, coordinates.long]);
-            if (_onClickMap) {
-                _onClickMap(coordinates);
-            }
+            triggerMapClick(coordinates);
         });
 
         coordenadaText.addEventListener('click', ev => {
@@ -267,7 +271,15 @@ mapHolder = (() => {
     }
     
     function showLocation(coordinates, zoom = 16) {
-        map.setView(coordinates, zoom);
+        var lat, long;
+        if (Array.isArray(coordinates)) {
+            lat = coordinates[0];
+            long = coordinates[1]
+        } else {
+            lat = coordinates.lat;
+            long = coordinates.long;
+        }
+        map.setView([lat, long], zoom);
     }
 
     var setShowMarkOnClick = (show) => {
@@ -291,6 +303,7 @@ mapHolder = (() => {
         setShowMarkOnClick,
         removeFeatureGroup,
         setOnClickMap,
-        setOnClickMark
+        setOnClickMark,
+        triggerMapClick
     }
 })();

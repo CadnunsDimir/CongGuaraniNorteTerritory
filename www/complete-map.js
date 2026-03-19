@@ -118,6 +118,21 @@ function showForm(addressData = null) {
     
 }
 
+async function onFormInputChange() {
+    const queryString = new URLSearchParams({
+        streetName: htmlUtil.get("#form_endereco").value,
+        houseNumber: htmlUtil.get("#form_numerocasa").value
+    }).toString();
+
+    var response = await fetch("/api/admin/territory/geocoding?" + queryString);
+
+    if (response.ok) {
+        const data = await response.json();
+        mapHolder.triggerMapClick(data);
+        mapHolder.showLocation(data, 15);
+    }
+}
+
 function closeForm() {
     var form = htmlUtil.get("#edit-dialog-form");
     form.reset();

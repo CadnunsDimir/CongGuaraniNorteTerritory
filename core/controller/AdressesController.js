@@ -1,10 +1,14 @@
 import { authenticateApi } from "../Auth.js";
 import EditarTerritorioService from "../services/EditarTerritorioService.js";
+import GeoCodingService from "../services/GeoCodingService.js";
 import TerritorioService from "../services/TerritorioService.js";
 
 function AdressesController(app) {
-    const basePath = "/api/admin/territory/adresses";
-    app.post(basePath, authenticateApi, async (req, res) => {
+    const base = "/api/admin/territory";
+    const adressesPath = `${base}/adresses`;
+    const geocodingPath = `${base}/geocoding`;
+
+    app.post(adressesPath, authenticateApi, async (req, res) => {
         await EditarTerritorioService.insert(req.body, req.user.login);
         await TerritorioService.refreshData();
         res.status(201)
@@ -14,7 +18,7 @@ function AdressesController(app) {
             });
     });
 
-    app.put(basePath + "/:enderecoAnterior", authenticateApi, async (req, res) => {
+    app.put(adressesPath + "/:enderecoAnterior", authenticateApi, async (req, res) => {
         const { enderecoAnterior } = req.params;
         const endereco = req.body;
         
@@ -28,7 +32,7 @@ function AdressesController(app) {
             });
     });
 
-    app.delete(basePath + "/:endereco", authenticateApi, async (req, res) => {
+    app.delete(adressesPath + "/:endereco", authenticateApi, async (req, res) => {
         const { endereco } = req.params;
         await EditarTerritorioService.remove(endereco, req.user.login);
         await TerritorioService.refreshData();
@@ -37,6 +41,12 @@ function AdressesController(app) {
                 status: 200,
                 data: "OK"
             });
+    });
+
+    app.get(geocodingPath, authenticateApi, async (req, res)=> {
+        const userAgent = req.headers['user-agent']
+        var data = await GeoCodingService.getCoordinatesByAdress(req.query.streetName, req.query.houseNumber, userAgent);
+        res.send(data);
     });
 }
 
