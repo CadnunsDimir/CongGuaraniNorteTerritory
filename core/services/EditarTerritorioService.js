@@ -1,29 +1,12 @@
 import Environment from "../Environment.js";
-import { google } from 'googleapis';
-import path from 'path';
 import Logger from "../Logger.js";
-
-const __rootFolder = process.cwd();
-const KEYFILEPATH = path.join(__rootFolder, 'google_auth', 'credentials.json');
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-const auth = new google.auth.GoogleAuth({
-  keyFile: KEYFILEPATH,
-  scopes: SCOPES,
-});
-
-async function getSheetsClient() {
-  const client = await auth.getClient();
-  return google.sheets({ version: 'v4', auth: client });
-}
-
-var sheets = await getSheetsClient();
+import Spreadsheet from "../Spreadsheet.js";
 
 function formatNumber(num) {
     return num < 10 ? '0'+num : num.toString();
 }
 
-async function insert(endereco) {
-    var range = '\'endereços\'!A1';
+async function insert(endereco) {    
     var date = new Date(Date.now());
     var dateAsString = formatNumber(date.getDate())+"/"+formatNumber(date.getMonth()+1)+"/"+date.getFullYear();
 
@@ -43,25 +26,7 @@ async function insert(endereco) {
         throw new Error("endereço inválido");
     }
 
-    const resource = {
-        values: rows,
-    };
-
-    try {
-
-        Logger.info('Tentando acessar a planilha:', Environment.spreadsheetId);
-        Logger.info('No intervalo:', range);
-
-        const result = await sheets.spreadsheets.values.append({
-            spreadsheetId: Environment.spreadsheetId,
-            range,
-            valueInputOption: 'USER_ENTERED',
-            requestBody: resource,
-        });
-        Logger.info(`${result.data.updates.updatedCells} células inseridas.`);
-    } catch (err) {
-        Logger.error('Erro ao inserir:', err);
-    }
+    Spreadsheet.appendRows('endereços', rows);    
 }
 
 // deve ser no padrão abaixo

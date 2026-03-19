@@ -3,39 +3,34 @@ import jwt from 'jsonwebtoken';
 import Logger from '../Logger.js';
 import Environment from "../Environment.js";
 import Utils from "../Utils.js";
+import Spreadsheet from '../Spreadsheet.js';
 
 function LoginService() {
     var tokenLimitTimeInMinutes = 30;
     var db = {};
 
-    function refreshDb() {
-        const urlCsvLocalidades = Utils.toUrl(Environment.dbCsvUrl, {
-            gid: Environment.loginsGid,
-            output: 'csv'
+    async function refreshDb() {        
+        var rows;
+        try {            
+            rows = await Spreadsheet.queryRows('\'usuarios_app\'!A2:C');  
+        } catch (error) {
+            throw new Error("[LoginService] Erro ao consultar dados de login")
+        }
+
+        rows.forEach(loginRow => {
+            var email = loginRow[1];
+            var login = loginRow[0];
+            var password = loginRow[2];
+            db[email] = {
+                email,
+                login,
+                password,
+                token: null,
+                validUntil: null
+            };
         });
 
-        fetch(urlCsvLocalidades)
-            .then(response => response.text())
-            .then(data => {
-                var tabelaLogins = Utils.parseCSV(data);               
-
-                db = {};
-                for (let index = 0; index < tabelaLogins.length; index++) {
-                    const loginRow = tabelaLogins[index];
-                    var email = loginRow[1];
-                    var login = loginRow[0];
-                    var password = loginRow[2];
-                    db[email] = {
-                        email,
-                        login,
-                        password,
-                        token: null,
-                        validUntil: null
-                    };
-                }
-                Logger.info("[CSV] [Login] Todos os " + (tabelaLogins.length - 1) + " logins foram carregados!");
-            })
-            .catch(error => Logger.error("Erro ao buscar dados:", error));
+        Logger.info("[Spreadsheet] [Login] Todos os " + rows.length + " logins foram carregados!");
     }
 
     refreshDb();

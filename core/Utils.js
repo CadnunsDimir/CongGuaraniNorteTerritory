@@ -1,3 +1,4 @@
+import Environment from "./Environment.js";
 
 function parseCSV(csvString) {
     const rows = [];
@@ -39,9 +40,25 @@ function toUrl(urlString, queryParams) {
     return url;
 }
 
+function fetchCsv(pageGid, callback) {
+    const urlCsv = Utils.toUrl(Environment.dbCsvUrl, {
+        gid: pageGid,
+        output: 'csv'
+    });
+
+    fetch(urlCsv)
+        .then(response => response.text())
+        .then(data => {
+            listaEnderecos = Utils.parseCSV(data);
+            callback(listaEnderecos);
+        })
+        .catch(error => callback(null, error));
+}
+
 const Utils = {
-    parseCSV,
-    toUrl
+    toUrl,
+    fetchCsv,
+    parseCSV
 };
 
 export default Utils;

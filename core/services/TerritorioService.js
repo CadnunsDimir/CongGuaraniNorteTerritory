@@ -1,6 +1,7 @@
 import Logger from "../Logger.js";
 import Utils from "../Utils.js";
 import Environment from "../Environment.js";
+import Spreadsheet from "../Spreadsheet.js";
 
 const TerritorioService = () => {
     const urlCsv = Utils.toUrl(Environment.dbCsvUrl, { 
@@ -16,18 +17,15 @@ const TerritorioService = () => {
 
     var listaEnderecos = [];    
 
-    function refreshData(callback) {
-        fetch(urlCsv)
-            .then(response => response.text())
-            .then(data => {
-                listaEnderecos = Utils.parseCSV(data);
-                Logger.info("[CSV] [Localidades] Todas as "+ listaEnderecos.length+" enderecos foram carregados!");
-                callback();
-            })
-            .catch(error => console.error("Erro ao buscar dados:", error));
-    }
+    async function refreshData() {        
+        try {
+            listaEnderecos = await Spreadsheet.queryRows('\'endereços\'!A2:E');    
+        } catch (error) {
+            throw new Error("[Localidades] Erro ao consultar dados: "+error);
+        }
 
-    
+        Logger.info("[Spreadsheet] [Localidades] Todas as "+ listaEnderecos.length+" enderecos foram carregados!");
+    }    
     
     const getByCardNumber = (numeroCartao) => {
         Logger.info("Carregando cartão "+numeroCartao);
