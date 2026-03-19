@@ -97,6 +97,8 @@ function showForm(addressData = null) {
         htmlUtil.get("#form_obs").value = obs.trim();
         latInput.value = addressData.lat;
         longInput.value = addressData.long;
+
+        console.log(currentEditingMarker);
     } else {
         isEditMode = false;
         enderecoAnterior = null;
@@ -254,18 +256,15 @@ async function deleteAddress() {
 
         if (resposta.ok && resultado.status === 200) {
             showAlert('success', 'Endereço excluído com sucesso!');
-            closeForm();
 
-            if (currentEditingMarker) {
-                mapHolder.map.removeLayer(currentEditingMarker);
-                const cartao = currentEditingMarker.data.cartao;
-                if (cartao && selectedTerritories.includes(cartao)) {
-                    removeTerritoryFromMap(cartao);
-                    delete territoryCardsCache[cartao];
-                    await addTerritoryToMap(cartao);
-                }
+            var cartao = currentEditingMarker.data.cartao;
+             if (selectedTerritories.includes(cartao)) {
+                removeTerritoryFromMap(cartao);
+                delete territoryCardsCache[cartao];
+                await addTerritoryToMap(cartao);
             }
 
+            closeForm();
             
         } else {
             showAlert('warning', resultado.message || 'Erro ao excluir endereço!');

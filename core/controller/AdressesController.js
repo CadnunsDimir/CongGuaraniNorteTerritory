@@ -5,7 +5,7 @@ import TerritorioService from "../services/TerritorioService.js";
 function AdressesController(app) {
     const basePath = "/api/admin/territory/adresses";
     app.post(basePath, authenticateApi, async (req, res) => {
-        await EditarTerritorioService.insert(req.body);
+        await EditarTerritorioService.insert(req.body, req.user.login);
         await TerritorioService.refreshData();
         res.status(201)
             .json({
@@ -18,7 +18,7 @@ function AdressesController(app) {
         const { enderecoAnterior } = req.params;
         const endereco = req.body;
         
-        await EditarTerritorioService.update(enderecoAnterior, endereco);
+        await EditarTerritorioService.update(enderecoAnterior, endereco, req.user.login);
         await TerritorioService.refreshData();
         
         res.status(200)
@@ -30,7 +30,7 @@ function AdressesController(app) {
 
     app.delete(basePath + "/:endereco", authenticateApi, async (req, res) => {
         const { endereco } = req.params;
-        await EditarTerritorioService.remove(endereco);
+        await EditarTerritorioService.remove(endereco, req.user.login);
         await TerritorioService.refreshData();
         res.status(200)
             .json({

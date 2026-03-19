@@ -6,7 +6,20 @@ function formatNumber(num) {
     return num < 10 ? '0' + num : num.toString();
 }
 
-async function insert(endereco) {
+async function log(endereco, mapa, acao, usuario) {
+    var row = [
+        endereco,
+        mapa,
+        acao,
+        "Sim",
+        "Sim",
+        usuario,
+        new Date().toLocaleDateString('pt-BR')
+    ]
+    await Spreadsheet.appendRows("atualizacao endereços", [row]);
+}
+
+async function insert(endereco, usuario) {
     var date = new Date(Date.now());
     var dateAsString = formatNumber(date.getDate()) + "/" + formatNumber(date.getMonth() + 1) + "/" + date.getFullYear();
 
@@ -26,11 +39,12 @@ async function insert(endereco) {
         throw new Error("endereço inválido");
     }
 
-    Spreadsheet.appendRows('endereços', rows);
+    await Spreadsheet.appendRows('endereços', rows);
+    await log(endereco.endereco, endereco.cartao, "incluir", usuario);
 }
 
 
-async function update(enderecoAnterior, endereco) {
+async function update(enderecoAnterior, endereco, usuario) {
     var page = 'endereços';
     var enderecoColunm = "C";
     var line;
@@ -59,9 +73,10 @@ async function update(enderecoAnterior, endereco) {
     ];
 
     await Spreadsheet.updateRows(page, line, row);
+    await log(endereco.endereco, endereco.cartao, "alterar", usuario);
 }
 
-async function remove(endereco) {
+async function remove(endereco, usuario) {
     var page = 'endereços';
     var enderecoColunm = "C";
     var line;
@@ -82,6 +97,7 @@ async function remove(endereco) {
     }
 
     await Spreadsheet.deleteRows(page, line);
+    await log(endereco, " - ", "remover", usuario);
 }
 
 function EditarTerritorioService() {
