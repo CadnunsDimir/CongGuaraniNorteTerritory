@@ -109,11 +109,15 @@ function clickTableCell(tCell, endereco) {
 }
 
 function atualizarTituloFullscreen() {
-    var nomeCartaoFullscreen = document.getElementById("nome-cartao-fullscreen");
-    var select = document.getElementById("form_localide");
-    const indice = select.selectedIndex;
-    const tituloCartao = select.options[indice].text;
-    nomeCartaoFullscreen.innerText = tituloCartao;
+    try {
+        var nomeCartaoFullscreen = document.getElementById("nome-cartao-fullscreen");
+        var select = document.getElementById("form_localide");
+        const indice = select.selectedIndex || 0;
+        const tituloCartao = select.options[indice].text;
+        nomeCartaoFullscreen.innerText = tituloCartao;
+    } catch (error) {
+        showAlert('error', error);   
+    }    
 }
 
 function atualizarListaFullscreen(enderecos) {
