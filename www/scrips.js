@@ -40,6 +40,7 @@ function carregarSelect() {
             formSelect.appendChild(option);
         });
         formSelect.value = document.getElementById("form_numero_territorio").value;
+        // atualizarTituloFullscreen();
     })
 
     formSelect.addEventListener("change", ev => {
@@ -66,8 +67,8 @@ async function carregarEnderecos(numeroCartao) {
     var cartao = await loadTerritoryCard(numeroCartao);
     var marks = cartao.enderecos.map(e => [e.lat, e.long, e.endereco]);
     var color = cartao.corCartao;
-    atualizarTituloFullscreen();
     atualizarListaFullscreen(cartao.enderecos);
+    atualizarTituloFullscreen();
     var itemPorColuna = Math.round(cartao.enderecos.length / 2);
 
     for (let i = 0; i < itemPorColuna; i++) {
