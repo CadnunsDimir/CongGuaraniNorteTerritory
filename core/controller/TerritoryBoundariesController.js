@@ -1,6 +1,7 @@
 import multer from 'multer';
 import path from 'path';
 import TerritoryBoundariesService from '../services/TerritoryBoundariesService.js';
+import { authenticateApi } from '../Auth.js';
 
 const storage = multer.memoryStorage();
 
@@ -19,7 +20,7 @@ const upload = multer({
 function TerritoryBoundariesController(app) {
     const base = "/api/territory/boundaries";
 
-    app.post(base, upload.single('map'), async (req, res) => {
+    app.post(base, authenticateApi, upload.single('map'), async (req, res) => {
         if (!req.file) {
             return res.status(400).send('Nenhum arquivo enviado.');
         }
@@ -35,8 +36,17 @@ function TerritoryBoundariesController(app) {
     });
     
     app.get(base, async (req, res)=> {
-       res.status(200)
-        .json(TerritoryBoundariesService.getPoligon());
+        var data = TerritoryBoundariesService.getPoligon();
+        if(data) {
+            res.status(200)
+                .json(TerritoryBoundariesService.getPoligon());
+        } else {
+            throw {
+                status: 404,
+                message: "Arquivo KML não carregado previamente"
+            };
+        }
+        
     });
 }
 

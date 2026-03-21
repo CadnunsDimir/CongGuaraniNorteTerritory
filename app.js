@@ -4,6 +4,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import Logger from './core/Logger.js';
+import GlobalExceptionHandler from './core/GlobalExceptionHandler.js';
 
 const port = 3000;
 const app = express();
@@ -33,6 +34,8 @@ const loadControllers = async () => {
 
 
 loadControllers().then(() => {
+    GlobalExceptionHandler(app);
+
     app.listen(port, () => {
         Logger.info('🚀 Servidor rodando em http://localhost:3000');
     });

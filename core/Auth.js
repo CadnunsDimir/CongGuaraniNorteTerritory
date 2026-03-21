@@ -19,9 +19,8 @@ export const authenticateFront= (req, res, next) => {
 };
 
 export const authenticateApi = (req, res, next) => {
-  const token = req.cookies[cookieTokenKey];
-
   try {
+    const token = req.cookies[cookieTokenKey];
     if(token) {
         const decoded = jwt.verify(token, Environment.AUTH_SECRET_KEY);
         req.user = decoded;
