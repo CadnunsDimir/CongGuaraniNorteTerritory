@@ -157,12 +157,49 @@ var getSheetId = async (sheetName) => {
     return sheet.properties.sheetId;
 }
 
+var updateCell = async (page, searchedValue, searchedValueColumn, newValue, newValueColumn) => {
+    var lineIndex = await getRowIndexByValue(page, searchedValueColumn, searchedValue);
+    var updateValueRange = `${page}!${newValueColumn}${lineIndex}`;
+    var requestBody = {
+        values: [
+            [newValue]
+        ]
+    };
+
+    await sheets.spreadsheets.values.update({
+        spreadsheetId,
+        range: updateValueRange,
+        valueInputOption: 'USER_ENTERED',
+        requestBody
+    });
+}
+
+var getValueByReference = async (page, searchValue, searchColumn, returnColumn) => {
+    const rowIndex = await getRowIndexByValue(page, searchColumn, searchValue);
+
+    if (rowIndex === -1) {
+        Logger.info(`Valor "${searchValue}" não encontrado na coluna ${searchColumn}.`);
+        return null;
+    }
+
+    const range = `${page}!${returnColumn}${rowIndex}`;
+    const response = await sheets.spreadsheets.values.get({
+        spreadsheetId,
+        range,
+    });
+
+    const value = response.data.values;
+    return value ? value[0][0] : null;
+}
+
 var Spreadsheet = (() =>{
     return {
         appendRows,
         queryRows,
         getRowIndexByValue,
+        getValueByReference,
         updateRows,
+        updateCell,
         deleteRows
     }
 })();

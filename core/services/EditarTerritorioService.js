@@ -43,7 +43,6 @@ async function insert(endereco, usuario) {
     await log(endereco.endereco, endereco.cartao, "incluir", usuario);
 }
 
-
 async function update(enderecoAnterior, endereco, usuario) {
     var page = 'endereços';
     var enderecoColunm = "C";
