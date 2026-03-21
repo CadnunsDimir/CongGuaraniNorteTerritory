@@ -1,34 +1,41 @@
 import express from 'express';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
-
-import TerritorioController from './core/controller/TerritoryController.js';
-import FrontEndController from './core/controller/FrontEndController.js';
-import AdminController from './core/controller/AdminController.js';
 import Logger from './core/Logger.js';
-import AdressesController from './core/controller/AdressesController.js';
 
 const port = 3000;
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-FrontEndController(app);
-TerritorioController(app);
-AdminController(app);
-AdressesController(app);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-app.use((err, req, res, next) => {
+const loadControllers = async () => {
+    const controllersPath = path.join(__dirname, 'core\\controller');
     
-    const status = err.status || 500;
-    const mensagem = err.message || 'Erro interno no servidor';
-    Logger.error(mensagem);
+    // Lê todos os arquivos da pasta
+    const files = fs.readdirSync(controllersPath);
 
-    res.status(status).json({
-        status: status,
-        message: mensagem,
+    for (const file of files) {
+        if (file.endsWith('.js')) {
+            const filePath = path.join(controllersPath, file);            
+            const controller = await import(`file://${filePath}`);
+            
+            if (typeof controller.default === 'function') {
+                controller.default(app);
+                Logger.info(`✅ Controller carregado: ${file}`);
+            }
+        }
+    }
+};
+
+
+loadControllers().then(() => {
+    app.listen(port, () => {
+        Logger.info('🚀 Servidor rodando em http://localhost:3000');
     });
-});
-
-app.listen(port, () => {
-  Logger.info(`Servidor rodando em http://localhost:${port}`);
+}).catch(err => {
+    Logger.error('❌ Erro ao carregar controllers:'+err);
 });

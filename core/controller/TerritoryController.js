@@ -1,6 +1,7 @@
 import TerritorioService from '../services/TerritorioService.js';
 import ListaTerritorioService from '../services/ListaTerritoriosService.js';
 import LoginService from '../services/LoginService.js';
+import { authenticateApi } from '../Auth.js';
 
 function TerritorioController(app) {
     const apiPath = "/api";
@@ -9,7 +10,7 @@ function TerritorioController(app) {
         res.send(TerritorioService.adicionarNovosTerritorios(ListaTerritorioService.getList()));
     });
 
-    app.get(apiPath + "/territorios/refresh", async (req, res) => {
+    app.get(apiPath + "/territorios/refresh", authenticateApi, async (req, res) => {
         await ListaTerritorioService.refresh();
         await LoginService.refreshDb();
         await TerritorioService.refreshData();
