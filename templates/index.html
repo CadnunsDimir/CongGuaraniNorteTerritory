@@ -47,7 +47,7 @@
         document.addEventListener("DOMContentLoaded", async () => {
             console.log("Página carregada!");
             try {
-                mapHolder.inicializarMapa();
+                await mapHolder.inicializarMapa();
                 carregarSelect();
                 await inicializarTabela();
             } catch (error) {

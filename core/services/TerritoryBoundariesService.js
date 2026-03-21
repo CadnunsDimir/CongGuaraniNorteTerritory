@@ -17,16 +17,24 @@ var saveKmlAsPoligon = async (kmlString) => {
         .Polygon[0]
         .outerBoundaryIs[0]
         .LinearRing[0]
-        .coordinates[0].split("\n").map(c => c.split(","));
+        .coordinates[0]
+        .split("\n")
+        .map(c => c.split(","))
+        .filter(c=> c.length >= 3);
 
     boundaries = {
-        header: ['longitude', 'latitude', 'altitude'],
-        poligonCoordinates: boundariesNode
+        header: ['latitude', 'longitude', 'altitude'],
+        poligonCoordinates: boundariesNode.map(x=> {
+            const lat = parseFloat(x[1]);
+            const long = parseFloat(x[0]);
+            const alt = parseFloat(x[2]);
+            return [lat,long, alt];
+        })
     }
 
     await Spreadsheet.updateCell(page, searchValueKey,searchedValueColumn, JSON.stringify(boundaries), valueColumn);
 
-    Logger.info(`Arquivo KML no formato de territo do HUB.JW.ORG Salvo! Poligono com ${boundaries.poligonCoordinates.length} pontos`);
+    Logger.info(`Arquivo KML no formato de territorio do HUB.JW.ORG Salvo! Poligono com ${boundaries.poligonCoordinates.length} pontos`);
 }
 
 var getPoligon = () => {

@@ -20,7 +20,7 @@ mapHolder = (() => {
         }
     }
 
-    function inicializarMapa() {
+    async function inicializarMapa() {
         mapDiv = document.getElementById("mapa");
         fecharBotao = document.getElementById("fechar_mapa_botao");
         telaCheiaBotao = document.getElementById("telacheia_mapa_botao");
@@ -75,8 +75,7 @@ mapHolder = (() => {
             });
         });
 
-        showClickMark([-23,42]);
-        
+        await addTerritoryBoundaries();
     }
 
     function showClickMark(coordinates) {
@@ -268,6 +267,23 @@ mapHolder = (() => {
         mapDiv.classList.remove("fullscreen");
         localStorage.removeItem(fullScreenStateKey);
         map.invalidateSize();
+    }
+
+    async function addTerritoryBoundaries() {
+        var response = await fetch("/api/territory/boundaries");
+
+        if (response.ok) {
+            const data = await response.json();
+            var coordinates = data.poligonCoordinates;
+            console.log(coordinates);
+
+            L.polygon(coordinates, {
+                color: 'blue',
+                weight: 3,
+                fill: false,
+                opacity: 1
+            }).addTo(map);
+        }        
     }
     
     function showLocation(coordinates, zoom = 16) {

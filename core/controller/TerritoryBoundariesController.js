@@ -20,7 +20,7 @@ const upload = multer({
 function TerritoryBoundariesController(app) {
     const base = "/api/territory/boundaries";
 
-    app.post(base, authenticateApi, upload.single('map'), async (req, res) => {
+    app.post(base, upload.single('map'), async (req, res) => {
         if (!req.file) {
             return res.status(400).send('Nenhum arquivo enviado.');
         }

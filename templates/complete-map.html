@@ -62,8 +62,8 @@
     <script src="/www/map.js"></script>
     <script src="/www/complete-map.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            mapHolder.inicializarMapa();
+        document.addEventListener("DOMContentLoaded", async () => {
+            await mapHolder.inicializarMapa();
             mountTerritoryListHtml();
             mapHolder.setOnClickMark((data, marker) => {
                 if (isEditMode) return; // Prevent opening edit for another marker while editing
