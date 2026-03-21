@@ -21,6 +21,11 @@ function FrontEndController(app) {
         res.sendFile(path.join(__rootFolder, templatesPath, screen));
     });
 
+    app.get('/admin/partial/:pageId', authenticateFront, (req, res) => {
+        var partialPageFilePath = `partial-${req.params.pageId}.html`;
+        res.sendFile(path.join(__rootFolder, templatesPath, partialPageFilePath));
+    });
+
     app.get('/admin/complete-map', authenticateFront, (req, res) => {
         if (req.isAuthenticated) {
             return res.sendFile(path.join(__rootFolder, templatesPath, "complete-map.html"));

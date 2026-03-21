@@ -16,13 +16,19 @@
             <span class="label-h1">Visualizador de Mapas</span><br>
             Administração
         </h1>
-        <p>Seja Bem Vindo, <span id="nome-usuario"></span></p>
-        <button id="btn-logout">logout</button>
-        <button id="btn-refresh">refresh territorios</button>
-        <button id="btn-mapa-completo">Visualizar Território Completo</button>
 
-        <p>resultado chamada:</p>
-        <p id="resultado"></p>
+        <div class="menu" id="menu">
+            <p>Seja Bem Vindo, <span id="nome-usuario"></span></p>
+            <button id="btn-logout">logout</button>
+            <button id="btn-refresh">refresh territorios</button>
+            <button id="btn-mapa-completo">Visualizar Território Completo</button>
+            <button onclick="openOnSinglePage('upload')">Atualizar Limites Território</button>
+        </div>
+
+        <div id="page" class="hide">
+            <button id="btn-voltar">Voltar</button>
+            <div id="page-content"></div>
+        </div>
     </div>    
 
     <script src="www/scripts-admin.js"></script>

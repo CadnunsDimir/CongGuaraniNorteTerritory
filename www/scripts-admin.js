@@ -1,6 +1,7 @@
-function setOnClick(selector, action) {
+
+const setOnClick = (selector, action) => 
     document.querySelector(selector).addEventListener('click', action);
-}
+const getById = (id) => document.getElementById(id);
 
 fetch('/api/admin/user', {
     method: 'GET',
@@ -13,26 +14,6 @@ fetch('/api/admin/user', {
         nomeUsuario.innerText = data.login;
     }
 });
-
-// fetch('/api/admin/territory/adresses', {
-//     method: 'POST',
-//     credentials: 'include',
-//     headers: {
-//         'Content-Type': 'application/json'
-//     },
-//     body: JSON.stringify({
-//         cor: '#FFF',
-//         cartao: 99,
-//         endereco: 'rua do teste, 25',
-//         lat: '-25',
-//         long: '-46'
-//     })
-// }).then(async (response) => {
-//     if (response.ok) {
-//         var data = await response.json();
-//         console.log(data);
-//     }
-// });
 
 setOnClick('#btn-logout', async () => {
     try {
@@ -52,23 +33,85 @@ setOnClick('#btn-logout', async () => {
 
 
 setOnClick("#btn-refresh", async () => {
-    const resultado = document.getElementById("resultado");
-
-    try {
-        const resposta = await fetch('/api/territorios/refresh', {
-            method: 'GET',
-            credentials: 'include' // Essencial para o navegador saber qual cookie limpar
-        });
-
-        if (resposta.ok) {
-            resultado.innerText = "Territorios atualizados!"
-        }
-    } catch (erro) {
-        console.error('Erro ao atualizar:', erro);
-        resultado.innerText = "Erro: " + JSON.stringify(erro);
-    }
+    await openOnSinglePage('refresh');
 });
 
 setOnClick("#btn-mapa-completo", ()=>{
      window.location.href = '/admin/complete-map'
-})
+});
+
+const partialPageScripts = {
+    refresh: async () => {
+        const resultado = getById("resultado");
+
+        try {
+            const resposta = await fetch('/api/territorios/refresh', {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (resposta.ok) {
+                resultado.innerText = "Territorios atualizados!"
+            }
+        } catch (erro) {
+            console.error('Erro ao atualizar:', erro);
+            resultado.innerText = "Erro: " + JSON.stringify(erro);
+        }
+    },
+    upload: async (page) => {
+        var form = page.querySelector('form');
+        var result = page.querySelector('#resultado');
+        
+        form.addEventListener('submit', ev => {
+            ev.preventDefault();
+
+            const mapFiles = getById('map').files;
+
+            if (mapFiles.length === 0) {
+                result.innerText = "Selecione um arquivo válido!";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('map', mapFiles[0]);
+
+            fetch('/api/territory/boundaries', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(response => {
+                    
+                    result.innerText = response.message;
+                })
+                .catch(err => result.innerText = "Erro ao salvar arquivo: "+ err);
+        });
+    }
+}
+
+const page = getById('page');
+const menu = getById('menu');
+
+setOnClick('#btn-voltar', ev => {
+    console.log("backButton.click()");
+    page.style.display = '';
+    menu.style.display = '';
+});
+
+const openOnSinglePage = async (id) => {    
+    const pageContent = getById('page-content');
+
+    const html =  await fetch('/admin/partial/'+id, {
+            method: 'GET',
+            credentials: 'include'
+        }).then(res => res.text())
+        .catch(ex => console.error(ex));
+    
+    pageContent.innerHTML = html;
+    page.style.display = 'block';
+    menu.style.display = 'none';
+
+    setTimeout(async () => {
+        await partialPageScripts[id](page);
+    }, 200);    
+}
