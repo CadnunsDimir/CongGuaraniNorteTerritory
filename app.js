@@ -14,7 +14,7 @@ app.use(cookieParser());
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const loadControllers = async () => {
-    const controllersPath = path.join(__dirname, 'core\\controller');
+    const controllersPath = path.join(__dirname, 'core/controller');
     
     // Lê todos os arquivos da pasta
     const files = fs.readdirSync(controllersPath);
