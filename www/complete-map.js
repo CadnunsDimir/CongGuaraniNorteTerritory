@@ -237,7 +237,7 @@ async function submitForm(event) {
 
         if (resposta.ok && (resultado.status === 201 || resultado.status === 200)) {
             const message = isEditMode ? 'Endereço editado com sucesso!' : 'Endereço adicionado com sucesso!';
-            showAlert('success', message);
+            alerts.show('success', message);
             closeForm();
             if (selectedTerritories.includes(adresses.cartao)) {
                 removeTerritoryFromMap(adresses.cartao);
@@ -246,12 +246,12 @@ async function submitForm(event) {
             }
         } else {
             formulario.reset();
-            showAlert('warning', resultado.message || 'Verifique os dados inseridos e tente novamente!');
+            alerts.show('warning', resultado.message || 'Verifique os dados inseridos e tente novamente!');
 
         }
     } catch (erro) {
         console.error('Erro na requisição:', erro);
-        showAlert('error', 'Erro ao conectar com o servidor.');
+        alerts.show('error', 'Erro ao conectar com o servidor.');
     }
     submitBtn.disabled = false;
 }
@@ -270,7 +270,7 @@ async function deleteAddress() {
         const resultado = await resposta.json();
 
         if (resposta.ok && resultado.status === 200) {
-            showAlert('success', 'Endereço excluído com sucesso!');
+            alerts.show('success', 'Endereço excluído com sucesso!');
 
             var cartao = currentEditingMarker.data.cartao;
              if (selectedTerritories.includes(cartao)) {
@@ -282,10 +282,10 @@ async function deleteAddress() {
             closeForm();
             
         } else {
-            showAlert('warning', resultado.message || 'Erro ao excluir endereço!');
+            alerts.show('warning', resultado.message || 'Erro ao excluir endereço!');
         }
     } catch (erro) {
         console.error('Erro na requisição:', erro);
-        showAlert('error', 'Erro ao conectar com o servidor.');
+        alerts.show('error', 'Erro ao conectar com o servidor.');
     }
 }

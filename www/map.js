@@ -68,11 +68,7 @@ mapHolder = (() => {
 
         coordenadaText.addEventListener('click', ev => {
             var text = ev.target.innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Copied to clipboard: " + text);
-            }).catch(err => {
-                console.error('Could not copy text: ', err);
-            });
+            htmlUtil.copyToClipboard(text);
         });
 
         await addTerritoryBoundaries();
@@ -135,6 +131,8 @@ mapHolder = (() => {
         centerMark.push(gpsMarker, accuracyCircle);
     }
 
+    
+
     function marker(coordinates, cor = '#FF0000') {
         if (!map) return;
         const iconSize = 24;
@@ -166,11 +164,29 @@ mapHolder = (() => {
             iconAnchor: [iconAnchor, iconAnchor] // Metade do tamanho para ficar centralizado na coordenada
         });
 
+        const mapLink = htmlUtil.getDeviceType() === "desktop" ? 
+            `https://www.google.com/maps/dir/?api=1&destination=${lat},${long}`:
+            `geo:${lat},${long}`;
+
+        const popUp = `
+        <span style="font-weight: bold; margin-bottom: 10px; cursor: pointer"
+        onclick="htmlUtil.copyToClipboard('${endereco}')">${endereco}</span>
+        <div style="
+            display: flex;
+            justify-content: space-between;
+            padding-top: 10px;
+            gap: 10px;
+            align-items: flex-end;">
+            <span style="font-size: 10px;color: grey;cursor: pointer"
+            onclick="htmlUtil.copyToClipboard('${lat},${long}')">${lat},${long}</span>
+            <a href='${mapLink}' target='_blank' class="routes-button">Rotas</a>
+        </div> `;
+
         const newMarker = L.marker([
             parseFloat(lat),
             parseFloat(long)
         ], { icon })
-            .bindPopup(endereco || '')
+            .bindPopup(popUp)
             .addTo(map);
 
         newMarker.data = coordinates;
@@ -275,7 +291,6 @@ mapHolder = (() => {
         if (response.ok) {
             const data = await response.json();
             var coordinates = data.poligonCoordinates;
-            console.log(coordinates);
 
             L.polygon(coordinates, {
                 color: 'blue',

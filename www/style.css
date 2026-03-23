@@ -370,3 +370,14 @@
     display: flex;
     flex-direction: column;
   }
+
+  .routes-button{
+    background: #018786;
+    height: 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    align-content: center;
+    padding: 7px 10px;
+    color: #fff !important;
+    font-weight: bold;
+  }

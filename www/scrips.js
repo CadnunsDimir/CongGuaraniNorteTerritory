@@ -1,5 +1,38 @@
 var listaEnderecosTelaCheia = null;
 
+alerts = {
+    show: (type, message) => {
+        var typeEnum = {
+        success: "green",
+        error: "red",
+        warning: "yellow"
+    };
+
+    var color = typeEnum[type] || type.warning;
+    var dialog = document.createElement("dialog");
+    document.body.appendChild(dialog);
+    dialog.innerText = message;
+
+    var style = {
+        border: `2px solid ${color}`,
+        display: "block",
+        top: "0",
+        marginTop: "40px",
+        boxShadow: "rgba(0, 0, 0, 0.2) 0px 1px 7px 0px, rgba(0, 0, 0, 0.19) 0px 3px 6px 0px;",
+        borderRadius: "5px",
+        fontSize: "9px"
+    };
+
+    for (const key in style) {
+        dialog.style[key] = style[key];
+    }
+
+    setTimeout(() => {
+        dialog.parentElement.removeChild(dialog);
+    }, 5000);
+    }
+}
+
 htmlUtil = {
     show: (htmlElement) => {
         if (htmlElement) {
@@ -17,6 +50,22 @@ htmlUtil = {
         }
     },
     get: (selector) => document.querySelector(selector),
+    getDeviceType: () => {
+        const ua = navigator.userAgent;
+        if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+            return "tablet";
+        } else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
+            return "mobile";
+        }
+        return "desktop";
+    },
+    copyToClipboard: (text)=> {
+        navigator.clipboard.writeText(text).then(() => {
+                alerts.show('success', "Texto copiado: " + text);
+        }).catch(err => {
+            alerts.show('error', 'Não foi possível copiar: ', err);
+        });
+    }
 }
 
 function loadTerritoryList(onLoadOk) {
@@ -112,7 +161,7 @@ function atualizarTituloFullscreen() {
         const tituloCartao = select.options[indice].text;
         nomeCartaoFullscreen.innerText = tituloCartao;
     } catch (error) {
-        showAlert('error', error);   
+        alerts.show('error', error);   
     }    
 }
 
@@ -153,34 +202,4 @@ function toggleListaFullscreen() {
         labelButton.innerText = "esconder";
         htmlUtil.show(listaUl);
     }
-}
-
-function showAlert(type, message) {
-    var typeEnum = {
-        success: "green",
-        error: "red",
-        warning: "yellow"
-    };
-
-    var color = typeEnum[type] || type.warning;
-    var dialog = document.createElement("dialog");
-    document.body.appendChild(dialog);
-    dialog.innerText = message;
-
-    var style = {
-        border: `2px solid ${color}`,
-        display: "block",
-        top: "0",
-        marginTop: "40px",
-        boxShadow: "rgba(0, 0, 0, 0.2) 0px 1px 7px 0px, rgba(0, 0, 0, 0.19) 0px 3px 6px 0px;",
-        borderRadius: "5px"
-    };
-
-    for (const key in style) {
-        dialog.style[key] = style[key];
-    }
-
-    setTimeout(() => {
-        dialog.parentElement.removeChild(dialog);
-    }, 5000);
 }
