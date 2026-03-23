@@ -65,6 +65,19 @@ htmlUtil = {
         }).catch(err => {
             alerts.show('error', 'Não foi possível copiar: ', err);
         });
+    },
+
+    isIOS: ()=> {
+        return [
+            'iPad Simulator',
+            'iPhone Simulator',
+            'iPod Simulator',
+            'iPad',
+            'iPhone',
+            'iPod'
+        ].includes(navigator.platform)
+            // Para iPads novos no iOS 13+ que se comportam como Desktop:
+            || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
     }
 }
 

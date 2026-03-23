@@ -164,9 +164,10 @@ mapHolder = (() => {
             iconAnchor: [iconAnchor, iconAnchor] // Metade do tamanho para ficar centralizado na coordenada
         });
 
-        const mapLink = htmlUtil.getDeviceType() === "desktop" ? 
+
+        const mapLink = htmlUtil.getDeviceType() === "desktop" || htmlUtil.isIOS() ? 
             `https://www.google.com/maps/dir/?api=1&destination=${lat},${long}`:
-            `geo:${lat},${long}`;
+            `geo:${lat},${long}?q=${lat},${long}(${endereco})`;
 
         const popUp = `
         <span style="font-weight: bold; margin-bottom: 10px; cursor: pointer"
