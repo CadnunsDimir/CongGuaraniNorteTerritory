@@ -5,8 +5,9 @@ import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import Logger from './core/Logger.js';
 import GlobalExceptionHandler from './core/GlobalExceptionHandler.js';
+import Environment from './core/Environment.js';
 
-const port = 3000;
+const port = Environment.PORT;
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -40,5 +41,5 @@ loadControllers().then(() => {
         Logger.info('🚀 Servidor rodando em http://localhost:3000');
     });
 }).catch(err => {
-    Logger.error('❌ Erro ao carregar controllers:'+err);
+    Logger.error('❌ Erro ao carregar controllers:'+err, err.stack);
 });

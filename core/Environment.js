@@ -1,12 +1,13 @@
+import dotenv from "dotenv";
+import Logger from "./Logger.js";
 
+dotenv.config();
 
 const Environment = {
-    dbCsvUrl: "XPTO",
-    spreadsheetId: 'XPTO',
-    enderecosGid: "1858059188",
-    localidadesGid: "1576675342",
-    loginsGid: "1994675439",
-    serviceAccountAdress: 'XPTO',
-    AUTH_SECRET_KEY: 'sdfsdufsshdhjKJHfkhghGFGFpppo5798'
+    PORT: process.env.PORT || 1234,
+    AUTH_SECRET_KEY: process.env.AUTH_SECRET_KEY,
+    SERVICE_ACCOUNT: process.env.SERVICE_ACCOUNT,
+    SPREADSHEET_ID: process.env.SPREADSHEET_ID
 }
+
 export default Environment 

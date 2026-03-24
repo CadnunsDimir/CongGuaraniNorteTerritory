@@ -148,7 +148,7 @@ mapHolder = (() => {
             endereco = coordinates.endereco || "vazio";
         }
         const icon = L.divIcon({
-            className: 'marker-circulo', // A classe CSS que criamos
+            className: 'marker-circulo',
             html: `<div 
             class="mapMark"
             data-endereco="${endereco}"
@@ -159,9 +159,9 @@ mapHolder = (() => {
                            border-radius: 50%; 
                            display: flex; justify-content: center; align-items: center;">
                    <i class="fa-solid fa-house" style="color: white; font-size: ${iconAnchor}px"></i>
-               </div>`, // O ícone da casinha
-            iconSize: [iconSize, iconSize], // Tamanho do círculo [largura, altura]
-            iconAnchor: [iconAnchor, iconAnchor] // Metade do tamanho para ficar centralizado na coordenada
+               </div>`,
+            iconSize: [iconSize, iconSize],
+            iconAnchor: [iconAnchor, iconAnchor]
         });
 
 

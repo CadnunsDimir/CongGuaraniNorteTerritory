@@ -6,7 +6,7 @@ import Logger from './Logger.js';
 const __rootFolder = process.cwd();
 const KEYFILEPATH = path.join(__rootFolder, 'google_auth', 'credentials.json');
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-const spreadsheetId = Environment.spreadsheetId;
+const spreadsheetId = Environment.SPREADSHEET_ID;
 
 const auth = new google.auth.GoogleAuth({
   keyFile: KEYFILEPATH,
@@ -47,7 +47,7 @@ var appendRows = async (page, rows) =>{
 var queryRows = async (range) => {
     try {
         const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: Environment.spreadsheetId,
+            spreadsheetId: spreadsheetId,
             range,
         });
 
@@ -134,7 +134,7 @@ var deleteRows = async (page, rowIndex) => {
                             startRowIndex: rowIndex - 1,
                             endRowIndex: rowIndex,
                             startColumnIndex: 0,
-                            endColumnIndex: 7 // assuming 7 columns
+                            endColumnIndex: 7
                         },
                         shiftDimension: 'ROWS'
                     }
