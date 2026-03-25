@@ -32,7 +32,7 @@ const TerritorioService = () => {
                 endereco: e[addressFieldKey],
                 lat: e[latKey],
                 long: e[longKey]
-            }))
+            })).toSorted((a, b) => a.endereco.localeCompare(b.endereco))
         }
     }
 
