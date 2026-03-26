@@ -50,3 +50,25 @@ jobs:
             docker logs --tail 20 $IMAGE_NAME
 
             echo 'Sucessfully Published!'
+    - name: Validando Container via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        script: |
+            echo "Validando se container está OK"
+            IMAGE_NAME=congguaraninorte-front
+            sleep 10
+            OUTPUT=$(docker logs $IMAGE_NAME | head -n 20 2>&1)
+
+            echo "===== OUTPUT ====="
+            echo "$OUTPUT"
+            echo "=================="
+
+            if [[ "$OUTPUT" == *"ERROR"* ]]; then
+                echo "❌ Encontrado ERROR no output"
+                exit 1
+            else
+                echo "✅ Nenhum erro encontrado"
+            fi
