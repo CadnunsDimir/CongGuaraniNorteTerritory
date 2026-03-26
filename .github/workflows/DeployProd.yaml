@@ -60,7 +60,7 @@ jobs:
             echo "Validando se container está OK"
             IMAGE_NAME=congguaraninorte-front
             sleep 10
-            OUTPUT=$(docker logs $IMAGE_NAME | head -n 20 2>&1)
+            OUTPUT=$(docker logs $IMAGE_NAME 2>&1)
 
             echo "===== OUTPUT ====="
             echo "$OUTPUT"
