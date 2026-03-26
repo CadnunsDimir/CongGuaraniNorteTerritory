@@ -38,7 +38,7 @@ loadControllers().then(() => {
     GlobalExceptionHandler(app);
 
     app.listen(port, () => {
-        Logger.info('🚀 Servidor rodando em http://localhost:3000');
+        Logger.info(`🚀 Servidor rodando em http://localhost:${port}`);
     });
 }).catch(err => {
     Logger.error('❌ Erro ao carregar controllers:'+err, err.stack);

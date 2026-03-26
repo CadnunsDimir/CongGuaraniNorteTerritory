@@ -14,12 +14,18 @@ jobs:
     steps:
     - name: Publish via SSH
       uses: appleboy/ssh-action@master
+      env:
+        AUTH_SECRET_KEY: ${{ secrets.AUTH_SECRET_KEY }}
+        PORT: ${{ secrets.PORT }}
+        SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.PRIVATE_KEY }}
         port: 22
+        
         script: |
+            echo ''
             echo 'Open Repository folder'
             cd apps
             cd CongGuaraniNorteTerritory
@@ -29,26 +35,34 @@ jobs:
             git status
 
             sleep 5
+            echo ''
             echo 'Publish on Docker and restart'
             IMAGE_NAME=congguaraninorte-front
             VPS_NETWORK=vps-network
 
+            echo ''
             echo "removendo node modules"
             rm node_modules -r
 
+            echo ''
             echo "Limpando versão anterior..."
             docker rm -f $IMAGE_NAME || true
 
+            echo ''
             echo "Contruindo imagem"
             docker build -t $IMAGE_NAME .
 
+            echo ''
             echo "Contruindo Container"
-            docker run -d --network $VPS_NETWORK --name $IMAGE_NAME $IMAGE_NAME
+            docker run -d \
+                --network $VPS_NETWORK \
+                --name $IMAGE_NAME \
+                -e AUTH_SECRET_KEY=$AUTH_SECRET_KEY \
+                -e PORT=$PORT \
+                -e SPREADSHEET_ID=$SPREADSHEET_ID \
+                $IMAGE_NAME
 
-            sleep 10
-
-            docker logs --tail 20 $IMAGE_NAME
-
+            echo ''
             echo 'Sucessfully Published!'
     - name: Validando Container via SSH
       uses: appleboy/ssh-action@v1.0.0
