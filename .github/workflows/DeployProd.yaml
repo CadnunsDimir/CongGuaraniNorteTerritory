@@ -14,25 +14,16 @@ jobs:
     steps:
     - name: Publish via SSH
       uses: appleboy/ssh-action@master
-      env:
-        AUTH_SECRET_KEY: ${{ secrets.AUTH_SECRET_KEY }}
-        PORT: ${{ secrets.PORT }}
-        SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.PRIVATE_KEY }}
-        port: 22
-        
+        port: 22        
         script: |
+            export AUTH_SECRET_KEY='${{ secrets.AUTH_SECRET_KEY }}' 
             export PORT='${{ secrets.PORT }}'
-            echo '----------------'
-            echo 'PORT'
-            echo '----------------'
-            echo $PORT
-            echo '----------------'
-            echo ''
-            echo 'Open Repository folder'
+            export SPREADSHEET_ID='${{ secrets.SPREADSHEET_ID }}'
+
             cd apps
             cd CongGuaraniNorteTerritory
             
