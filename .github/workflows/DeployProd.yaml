@@ -1,0 +1,52 @@
+name: Publish API
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # This workflow contains a single job called "build"
+  Deploy:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    - name: Publish via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        port: 22
+        script: |
+            echo 'Open Repository folder'
+            cd apps
+            cd CongGuaraniNorteTerritory
+            
+            echo 'Update data...'
+            git pull
+            git status
+
+            sleep 5
+            echo 'Publish on Docker and restart'
+            IMAGE_NAME=congguaraninorte-front
+            VPS_NETWORK=vps-network
+
+            echo "removendo node modules"
+            rm node_modules -r
+
+            echo "Limpando versão anterior..."
+            docker rm -f $IMAGE_NAME || true
+
+            echo "Contruindo imagem"
+            docker build -t $IMAGE_NAME .
+
+            echo "Contruindo Container"
+            docker run -d --network $VPS_NETWORK --name $IMAGE_NAME $IMAGE_NAME
+
+            sleep 10
+
+            docker logs --tail 20 $IMAGE_NAME
+
+            echo 'Sucessfully Published!'
