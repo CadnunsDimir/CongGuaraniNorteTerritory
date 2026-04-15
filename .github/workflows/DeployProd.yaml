@@ -44,7 +44,6 @@ jobs:
             echo 'Getting Google credentials'
             mkdir google_auth
             echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > google_auth/credentials.json
-            cat google_auth/credentials.json
 
             echo 'Checking folder'
             pwd
