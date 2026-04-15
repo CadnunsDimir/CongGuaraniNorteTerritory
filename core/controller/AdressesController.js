@@ -7,6 +7,7 @@ function AdressesController(app) {
     const base = "/api/admin/territory";
     const adressesPath = `${base}/adresses`;
     const geocodingPath = `${base}/geocoding`;
+    const geocodingPathV2 = `${base}/geocoding/v2`;
 
     app.post(adressesPath, authenticateApi, async (req, res) => {
         await EditarTerritorioService.insert(req.body, req.user.login);
@@ -46,6 +47,12 @@ function AdressesController(app) {
     app.get(geocodingPath, authenticateApi, async (req, res)=> {
         const userAgent = req.headers['user-agent']
         var data = await GeoCodingService.getCoordinatesByAdress(req.query.streetName, req.query.houseNumber, userAgent);
+        res.send(data);
+    });
+
+    app.get(geocodingPathV2, authenticateApi, async (req, res)=> {
+        const userAgent = req.headers['user-agent']
+        var data = await GeoCodingService.getCoordinatesByAdressV2(req.query.streetName, req.query.houseNumber, userAgent);
         res.send(data);
     });
 }
