@@ -124,6 +124,11 @@ async function onFormInputChange() {
         houseNumber: htmlUtil.get("#form_numerocasa").value
     }).toString();
 
+    // await geocodingV1(queryString);
+    await geocodingV2(queryString);
+}
+
+async function geocodingV1(queryString) {
     var response = await fetch("/api/admin/territory/geocoding?" + queryString);
 
     if (response.ok) {
@@ -132,7 +137,6 @@ async function onFormInputChange() {
         mapHolder.showLocation(data, 15);
     }
 
-    await geocodingV2(queryString);
 }
 
 async function geocodingV2(queryString) {
@@ -141,7 +145,116 @@ async function geocodingV2(queryString) {
     if (response.ok) {
         const data = await response.json();
         console.log("geocodingV2", data);
+        if (data.length === 1) {
+            mapHolder.triggerMapClick(data[0]);
+            mapHolder.showLocation(data[0], 15);
+        } else {
+            const selected = await showGeocodingOptionsModal(data);
+            if (selected) {
+                mapHolder.triggerMapClick(selected);
+                mapHolder.showLocation(selected, 15);
+            }
+        }
     }
+}
+
+function setStyle(el, style) {
+    Object.entries(style)
+                .forEach(([key, value])=> el.style[key] = value);
+}
+
+function createEl(type, style) {
+    var newElement = document.createElement(type);
+    setStyle(newElement, style);
+    if (style.innerText) {
+        newElement.innerText = style.innerText
+    }
+    return newElement;
+}
+
+function showGeocodingOptionsModal(options) {
+    return new Promise((resolve) => {
+        if (!Array.isArray(options) || options.length === 0) return resolve(null);
+        var dialog = createEl("dialog", {
+            maxWidth: "520px",
+            width:  "calc(100% - 30px)"
+        });
+
+        var title = createEl("p", {
+            innerText: "Selecione um endereço",
+            fontWeight: "bold",
+            marginBottom: "8px",
+        });
+
+        var lista = createEl("ul", {
+            width: "100%",
+            marginBottom: '10px',
+            padding: '0',
+            display: 'flex',
+            gap: '10px',
+            flexDirection: 'column'
+        });
+
+        options.forEach((opt, index) => {
+            var li = document.createElement("li");
+            li.innerText = opt.fullAddress;
+            lista.appendChild(li);
+
+            setStyle(li, {
+                listStyle: "none",
+                fontSize: "10px",
+                width: "100%",
+                padding: "10px",
+                border: "1px solid grey",
+                borderRadius: "7px",
+                boxSizing: "border-box"
+            });
+
+            li.addEventListener("click", ()=> {
+                resolve(opt);
+                cleanup();
+            });
+        });
+
+        var buttons = document.createElement("div");
+        buttons.style.display = "flex";
+        buttons.style.justifyContent = "flex-end";
+        buttons.style.gap = "8px";
+
+        var cancelBtn = document.createElement("button");
+        cancelBtn.type = "button";
+        cancelBtn.innerText = "Cancelar";
+
+        cancelBtn.addEventListener("click", () => dialog.close("cancel"));
+
+        buttons.appendChild(cancelBtn);
+
+        dialog.appendChild(title);
+        dialog.appendChild(lista);
+        dialog.appendChild(buttons);
+        document.body.appendChild(dialog);
+
+        var cleanup = () => {
+            if (dialog && dialog.parentElement) dialog.parentElement.removeChild(dialog);
+        };
+
+        dialog.addEventListener("close", () => {
+            try {
+                resolve(null);
+            } finally {
+                cleanup();
+            }
+        }, { once: true });
+
+        if (typeof dialog.showModal === "function") {
+            dialog.showModal();
+        } else {
+            htmlUtil.show(dialog);
+        }
+
+        // Preview first option immediately
+        mapHolder.showLocation(options[0], 15);
+    });
 }
 
 function closeForm() {
