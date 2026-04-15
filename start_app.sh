@@ -13,7 +13,13 @@ docker build -t $IMAGE_NAME .
 
 echo "Contruindo Container"
 
-docker run -d --network $VPS_NETWORK --name $IMAGE_NAME $IMAGE_NAME
+docker run -d \
+    --network $VPS_NETWORK \
+    --name $IMAGE_NAME \
+    -e AUTH_SECRET_KEY=$AUTH_SECRET_KEY \
+    -e PORT=$PORT \
+    -e SPREADSHEET_ID=$SPREADSHEET_ID \
+    $IMAGE_NAME
 
 sleep 10
 

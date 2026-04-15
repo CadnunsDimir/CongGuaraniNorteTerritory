@@ -24,6 +24,8 @@ jobs:
             export PORT='${{ secrets.PORT }}'
             export SPREADSHEET_ID='${{ secrets.SPREADSHEET_ID }}'
             export REPO_FOLDER='${{ github.event.repository.name }}'
+            IMAGE_NAME=congguaraninorte-front
+            VPS_NETWORK=vps-network
 
             cd apps
 
@@ -42,18 +44,15 @@ jobs:
             echo 'Getting Google credentials'
             mkdir google_auth
             cd google_auth
-            echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > credentials.json
-            cat google_auth/credentials.json
-
-            cd ..
+            echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > google_auth/credentials.json
             
             pwd
+            cat google_auth/credentials.json
 
             sleep 5
             echo ''
             echo 'Publish on Docker and restart'
-            IMAGE_NAME=congguaraninorte-front
-            VPS_NETWORK=vps-network
+            
 
             echo ''
             echo "removendo node modules"
