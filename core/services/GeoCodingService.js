@@ -49,18 +49,16 @@ var getCoordinatesByAdressV2 = async (street, hoseNumber, userAgent) => {
    
     if (response.ok) {
          var data = await response.json();
-         if (data.length > 0) {
-            return data.map(({ lat, lon, display_name })=> {
-                var data = {
-                    lat,
-                    long: lon,
-                    fullAddress: display_name
-                };
+        if (data.length > 0) {
 
-                cacheV2[fullAddress] = data;
-                return data;
-            });
-         }
+            cacheV2[fullAddress] = data.map(({ lat, lon, display_name }) => ({
+                lat,
+                long: lon,
+                fullAddress: display_name
+            }));
+
+            return cacheV2[fullAddress];
+        }
 
          throw {
             status: 404,
@@ -68,7 +66,7 @@ var getCoordinatesByAdressV2 = async (street, hoseNumber, userAgent) => {
          }        
     }
     Logger.error(response.status, await response.text());
-    throw new Error("Erro ao consultar serviço de GeoCoding");
+    throw new Error("[V2] Erro ao consultar serviço de GeoCoding");
 }
 
 const GeoCodingService = {

@@ -131,6 +131,17 @@ async function onFormInputChange() {
         mapHolder.triggerMapClick(data);
         mapHolder.showLocation(data, 15);
     }
+
+    await geocodingV2(queryString);
+}
+
+async function geocodingV2(queryString) {
+     var response = await fetch("/api/admin/territory/geocoding/v2?" + queryString);
+
+    if (response.ok) {
+        const data = await response.json();
+        console.log("geocodingV2", data);
+    }
 }
 
 function closeForm() {
