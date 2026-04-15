@@ -1,8 +1,7 @@
 import Logger from "../Logger.js";
 
-
-
 var cache = {}
+var cacheV2 = {}
 
 var getCoordinatesByAdress = async (street, hoseNumber, userAgent) => {
     var data = await getCoordinatesByAdressV2(street, hoseNumber, userAgent);
@@ -26,9 +25,9 @@ var getCoordinatesByAdress = async (street, hoseNumber, userAgent) => {
 var getCoordinatesByAdressV2 = async (street, hoseNumber, userAgent) => {
     var fullAddress = `${street}, ${hoseNumber}, São Paulo`;
 
-    if (cache[fullAddress]) {
-        Logger.info("[GEOCODING] Buscando do cache...");
-        return cache[fullAddress];
+    if (cacheV2[fullAddress]) {
+        Logger.info("[GEOCODING][V2] Buscando do cache...");
+        return cacheV2[fullAddress];
     }
 
     var url = "https://nominatim.openstreetmap.org/search";
@@ -38,7 +37,7 @@ var getCoordinatesByAdressV2 = async (street, hoseNumber, userAgent) => {
         format: 'jsonv2',
     }).toString();
     const fullUrl = `${url}?${queryString}`;
-    Logger.info(`[GEOCODING] Buscando da web ${fullUrl}`);
+    Logger.info(`[GEOCODING][V2] Buscando da web ${fullUrl}`);
 
     var response = await fetch(fullUrl, {
         method: 'GET',
@@ -58,7 +57,7 @@ var getCoordinatesByAdressV2 = async (street, hoseNumber, userAgent) => {
                     fullAddress: display_name
                 };
 
-                cache[fullAddress] = data;
+                cacheV2[fullAddress] = data;
                 return data;
             });
          }
