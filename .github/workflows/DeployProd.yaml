@@ -33,15 +33,21 @@ jobs:
             echo 'Cloning repository ${{ github.repository }}'
             git clone git@github.com:${{ github.repository }}.git
             cd $REPO_FOLDER
-
-            cd CongGuaraniNorteTerritory
+            pwd
             
             echo 'Update data...'
             git pull
             git status
 
+            echo 'Getting Google credentials'
             mkdir google_auth
-            echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > google_auth/credentials.json
+            cd google_auth
+            echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > credentials.json
+            cat google_auth/credentials.json
+
+            cd ..
+            
+            pwd
 
             sleep 5
             echo ''
