@@ -40,6 +40,9 @@ jobs:
             git pull
             git status
 
+            mkdir google_auth
+            echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > google_auth/credentials.json
+
             sleep 5
             echo ''
             echo 'Publish on Docker and restart'
