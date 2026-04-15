@@ -1,4 +1,4 @@
-name: Publish API
+name: Deploy on PRD
 
 on:
   push:
