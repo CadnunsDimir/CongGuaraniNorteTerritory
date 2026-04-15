@@ -57,6 +57,7 @@ async function update(enderecoAnterior, endereco, usuario) {
     }
 
     if (line < 1) {
+        Logger.error(`Endereço não encontrado: '${enderecoAnterior}'`);
         throw {
             status: 404,
             message: "Endereço não encontrado"
