@@ -1,15 +1,33 @@
 import Logger from "../Logger.js";
 
-
-
 var cache = {}
+var cacheV2 = {}
 
 var getCoordinatesByAdress = async (street, hoseNumber, userAgent) => {
+    var data = await getCoordinatesByAdressV2(street, hoseNumber, userAgent);
+    var queryFullAddress = `${street}, ${hoseNumber}, São Paulo`;
+   
+    if (data.length > 0) {
+        const { lat, long, fullAddress } = data[0];
+
+        cache[queryFullAddress] = {
+            lat,
+            long,
+            fullAddress
+        };
+
+        return cache[queryFullAddress];
+    }
+
+    throw new Error("Erro ao consultar serviço de GeoCoding");
+}
+
+var getCoordinatesByAdressV2 = async (street, hoseNumber, userAgent) => {
     var fullAddress = `${street}, ${hoseNumber}, São Paulo`;
 
-    if (cache[fullAddress]) {
-        Logger.info("[GEOCODING] Buscando do cache...");
-        return cache[fullAddress];
+    if (cacheV2[fullAddress]) {
+        Logger.info("[GEOCODING][V2] Buscando do cache...");
+        return cacheV2[fullAddress];
     }
 
     var url = "https://nominatim.openstreetmap.org/search";
@@ -19,7 +37,7 @@ var getCoordinatesByAdress = async (street, hoseNumber, userAgent) => {
         format: 'jsonv2',
     }).toString();
     const fullUrl = `${url}?${queryString}`;
-    Logger.info(`[GEOCODING] Buscando da web ${fullUrl}`);
+    Logger.info(`[GEOCODING][V2] Buscando da web ${fullUrl}`);
 
     var response = await fetch(fullUrl, {
         method: 'GET',
@@ -31,25 +49,29 @@ var getCoordinatesByAdress = async (street, hoseNumber, userAgent) => {
    
     if (response.ok) {
          var data = await response.json();
-         if (data.length > 0) {
-            const { lat, lon, display_name } = data[0];
+        if (data.length > 0) {
 
-            cache[fullAddress] = {
+            cacheV2[fullAddress] = data.map(({ lat, lon, display_name }) => ({
                 lat,
                 long: lon,
                 fullAddress: display_name
-            };
+            }));
 
-            return cache[fullAddress];
-         }
-        
+            return cacheV2[fullAddress];
+        }
+
+         throw {
+            status: 404,
+            message: "Endereço não encontrado no geocoding"
+         }        
     }
     Logger.error(response.status, await response.text());
-    throw new Error("Erro ao consultar serviço de GeoCoding");
+    throw new Error("[V2] Erro ao consultar serviço de GeoCoding");
 }
 
 const GeoCodingService = {
-    getCoordinatesByAdress
+    getCoordinatesByAdress,
+    getCoordinatesByAdressV2
 }
 
 export default GeoCodingService;
