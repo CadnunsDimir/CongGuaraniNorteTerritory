@@ -43,7 +43,7 @@ jobs:
 
             echo 'Getting Google credentials'
             mkdir google_auth
-            echo "${{ secrets.GOOGLE_CREDENTIALS_JSON }}" > google_auth/credentials.json
+            cp ~/apps/credentials.json google_auth/credentials.json
 
             echo 'Checking folder'
             pwd

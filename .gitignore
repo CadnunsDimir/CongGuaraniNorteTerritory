@@ -2,3 +2,4 @@ node_modules/
 google_auth/
 .env
 deploy_front.sh
+deploy_google_credetials.sh
