@@ -124,19 +124,7 @@ async function onFormInputChange() {
         houseNumber: htmlUtil.get("#form_numerocasa").value
     }).toString();
 
-    // await geocodingV1(queryString);
     await geocodingV2(queryString);
-}
-
-async function geocodingV1(queryString) {
-    var response = await fetch("/api/admin/territory/geocoding?" + queryString);
-
-    if (response.ok) {
-        const data = await response.json();
-        mapHolder.triggerMapClick(data);
-        mapHolder.showLocation(data, 15);
-    }
-
 }
 
 async function geocodingV2(queryString) {
