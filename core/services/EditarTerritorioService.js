@@ -90,7 +90,7 @@ async function remove(endereco, usuario) {
     }
 
     if (line < 1) {
-        Logger.error(`Endereço não encontrado: '${enderecoAnterior}'`);
+        Logger.error(`Endereço não encontrado: '${endereco}'`);
         throw {
             status: 404,
             message: "Endereço não encontrado"

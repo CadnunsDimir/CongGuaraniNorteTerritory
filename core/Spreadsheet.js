@@ -77,7 +77,7 @@ var getRowIndexByValue = async (page, colunmLetter, searchedValue) => {
         return -1;
     }
 
-    const rowIndex = rows.findIndex(row => row[0] === searchedValue.trim());
+    const rowIndex = rows.findIndex(row => row[0] === searchedValue);
     return rowIndex + 1;
 }
 
