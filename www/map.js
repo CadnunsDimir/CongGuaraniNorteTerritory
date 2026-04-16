@@ -137,15 +137,17 @@ mapHolder = (() => {
         if (!map) return;
         const iconSize = 24;
         const iconAnchor = iconSize / 2;
-        let lat, long, endereco;
+        let lat, long, endereco, numCartao;
         if (Array.isArray(coordinates)) {
             lat = coordinates[0];
             long = coordinates[1];
             endereco = coordinates[2] || "vazio";
+            numCartao = coordinates[3];
         } else {
             lat = coordinates.lat;
             long = coordinates.long;
             endereco = coordinates.endereco || "vazio";
+            numCartao = coordinates.cartao || coordinates.numeroCartao;
         }
         const icon = L.divIcon({
             className: 'marker-circulo',
@@ -169,7 +171,12 @@ mapHolder = (() => {
             `https://www.google.com/maps/dir/?api=1&destination=${lat},${long}`:
             `geo:${lat},${long}?q=${lat},${long}(${endereco})`;
 
+        const cartaoLine = (numCartao !== undefined && numCartao !== null && String(numCartao).trim() !== "")
+            ? `<div class="map-popup-card">Cartão ${numCartao}</div>`
+            : "";
+
         const popUp = `
+        ${cartaoLine}
         <span style="font-weight: bold; margin-bottom: 10px; cursor: pointer"
         onclick="htmlUtil.copyToClipboard('${endereco}')">${endereco}</span>
         <div style="
