@@ -127,7 +127,7 @@ async function carregarEnderecos(numeroCartao) {
     var table = document.getElementById("tabela_enderecos");
     table.innerHTML = "";
     var cartao = await loadTerritoryCard(numeroCartao);
-    var marks = cartao.enderecos.map(e => [e.lat, e.long, e.endereco]);
+    var marks = cartao.enderecos.map(e => [e.lat, e.long, e.endereco, numeroCartao]);
     var color = cartao.corCartao;
     atualizarListaFullscreen(cartao.enderecos);
     atualizarTituloFullscreen();
