@@ -381,3 +381,9 @@
     color: #fff !important;
     font-weight: bold;
   }
+
+  .map-popup-card {
+    font-size: 10px;
+    color: #999;
+    margin-bottom: 6px;
+  }
