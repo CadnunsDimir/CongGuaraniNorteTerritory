@@ -91,6 +91,11 @@ function showForm(addressData = null) {
         var numeroCasa = indexOfObsDivider > 0 ? parts[1].substring(0, indexOfObsDivider) : "";
         var obs = indexOfObsDivider > 0? parts[1].substring(indexOfObsDivider+1, parts[1].length) : "";
 
+        if (numeroCasa.length == 0&& parts.length > 1 && parts[1]) {
+            numeroCasa = parts[1].split(" ")[0];
+            obs = parts[1].replace(numeroCasa, "").trim()
+        }
+
         htmlUtil.get("#form_numerocartao").value = addressData.cartao;
         htmlUtil.get("#form_endereco").value = endereco;
         htmlUtil.get("#form_numerocasa").value = numeroCasa.trim();
