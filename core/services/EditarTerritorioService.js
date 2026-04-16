@@ -46,9 +46,9 @@ async function insert(endereco, usuario) {
 async function update(enderecoAnterior, endereco, usuario) {
     var page = 'endereços';
     var enderecoColunm = "C";
-    var line;
+    var line;    
     try {
-        line = await Spreadsheet.getRowIndexByValue(page, enderecoColunm, enderecoAnterior);
+        line = await Spreadsheet.getRowIndexByValue(page, enderecoColunm, enderecoAnterior);        
     } catch (error) {
         throw {
             status: 500,
@@ -79,9 +79,12 @@ async function update(enderecoAnterior, endereco, usuario) {
 async function remove(endereco, usuario) {
     var page = 'endereços';
     var enderecoColunm = "C";
+    var cardNumberColunm = "B";
     var line;
+    var cardNumber;
     try {
         line = await Spreadsheet.getRowIndexByValue(page, enderecoColunm, endereco);
+        cardNumber = await Spreadsheet.getValueByReference(page, endereco, enderecoColunm, cardNumberColunm)
     } catch (error) {
         throw {
             status: 500,
@@ -98,7 +101,7 @@ async function remove(endereco, usuario) {
     }
 
     await Spreadsheet.deleteRows(page, line);
-    await log(endereco, " - ", "remover", usuario);
+    await log(endereco, cardNumber, "remover", usuario);
 }
 
 function EditarTerritorioService() {
