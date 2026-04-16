@@ -87,8 +87,8 @@ function showForm(addressData = null) {
         // Parse the address
         var parts = addressData.endereco.split(", ");
         var endereco = parts[0];
-        var indexOfObsDivider = parts[1].indexOf("-");
-        var numeroCasa = indexOfObsDivider > 0 ? parts[1].substring(0, indexOfObsDivider) : parts[1];
+        var indexOfObsDivider = parts.length > 1 ? parts[1].indexOf("-") : -1;
+        var numeroCasa = indexOfObsDivider > 0 ? parts[1].substring(0, indexOfObsDivider) : "";
         var obs = indexOfObsDivider > 0? parts[1].substring(indexOfObsDivider+1, parts[1].length) : "";
 
         htmlUtil.get("#form_numerocartao").value = addressData.cartao;
