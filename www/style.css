@@ -407,6 +407,11 @@
     .complete-map .map-button.new {
       top: 112px;
     }
+
+    .map-default-position .leaflet-top.leaflet-left {
+      right: 10px;
+      bottom: 24px;
+    }
   }
 
   .complete-map .territory-list{
@@ -426,6 +431,21 @@
     display: flex;
     column-gap: 10px;
     align-items: center;
+  }
+
+  .map-default-position .leaflet-top.leaflet-left {
+    top: auto;
+    left: auto;
+    right: 12px;
+    bottom: 24px;
+  }
+
+  .map-default-position .leaflet-top.leaflet-left .leaflet-control {
+    margin: 0;
+  }
+
+  .center-content .map-default-position .leaflet-top.leaflet-left {
+    bottom: 48px;
   }
 
   dialog.edit-dialog{
