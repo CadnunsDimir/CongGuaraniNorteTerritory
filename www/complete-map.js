@@ -1,10 +1,19 @@
  var territoryCardsCache = {};
  var territoryMarksCache = {};
  var selectedTerritories = JSON.parse(localStorage.getItem("selectedTerritories") || "[]");
- var territorios = [];
- var isEditMode = false;
- var enderecoAnterior = null;
- var currentEditingMarker = null;
+var territorios = [];
+var isEditMode = false;
+var enderecoAnterior = null;
+var currentEditingMarker = null;
+var addressSearchState = {
+    input: null,
+    suggestions: null,
+    selectedGeocoding: null,
+    lastGeocodingResults: [],
+    requestId: 0,
+    debouncedSearch: null,
+    loadAllCardsPromise: null
+};
 
  function mountTerritoryListHtml() {
     var checkAll = document.getElementById("check-all");
@@ -14,6 +23,10 @@
 
     loadTerritoryList(data => {
         territorios = data;
+        if (addressSearchState.input) {
+            addressSearchState.input.disabled = false;
+            addressSearchState.input.placeholder = "Pesquisar endereço...";
+        }
         territoryList.innerHTML = "";
         data.forEach(async item=> {
             var li = document.createElement("li");
@@ -71,6 +84,351 @@ function addOptionOnForm(territoryNumber, neighborhoood) {
     option.value = territoryNumber;
     option.innerText = neighborhoood;
     htmlUtil.get("#form_numerocartao").appendChild(option);
+}
+
+function initAddressSearch() {
+    var container = document.getElementById("address-search-overlay");
+    var input = document.getElementById("address_search_input");
+    var suggestions = document.getElementById("address_search_suggestions");
+
+    if (!container || !input || !suggestions) return;
+
+    addressSearchState.input = input;
+    addressSearchState.suggestions = suggestions;
+    addressSearchState.debouncedSearch = debounce(onAddressSearchInput, 400);
+    input.disabled = territorios.length === 0;
+    if (input.disabled) {
+        input.placeholder = "Carregando territórios...";
+    }
+
+    input.addEventListener("input", ev => {
+        addressSearchState.selectedGeocoding = null;
+        addressSearchState.debouncedSearch(ev.target.value);
+    });
+
+    suggestions.addEventListener("click", ev => {
+        ev.stopPropagation();
+    });
+
+    input.addEventListener("click", ev => {
+        ev.stopPropagation();
+    });
+
+    document.addEventListener("click", ev => {
+        var isInsideSearch = ev.target && typeof ev.target.closest === "function"
+            ? ev.target.closest("#address-search-overlay")
+            : null;
+        if (!isInsideSearch) {
+            clearAddressSuggestions();
+        }
+    });
+}
+
+function debounce(fn, wait) {
+    var timeoutId = null;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn(...args), wait);
+    };
+}
+
+function normalizeText(value) {
+    return (value || "")
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+}
+
+function getAllLoadedAddressesForSearch() {
+    var uniqueAddress = new Map();
+    Object.entries(territoryCardsCache).forEach(([territoryNumber, territoryCard]) => {
+        (territoryCard?.enderecos || []).forEach(address => {
+            var key = `${address.endereco}|${address.lat}|${address.long}|${territoryNumber}`;
+            uniqueAddress.set(key, {
+                endereco: address.endereco,
+                lat: address.lat,
+                long: address.long,
+                cartao: territoryNumber
+            });
+        });
+    });
+    return [...uniqueAddress.values()];
+}
+
+function searchLocalAddresses(query, addresses, limit = 5) {
+    var normalizedQuery = normalizeText(query);
+    if (!normalizedQuery || normalizedQuery.length < 3) return [];
+
+    return addresses
+        .map(address => ({
+            ...address,
+            _normalizedAddress: normalizeText(address.endereco)
+        }))
+        .filter(address => address._normalizedAddress.includes(normalizedQuery))
+        .sort((a, b) => {
+            var indexA = a._normalizedAddress.indexOf(normalizedQuery);
+            var indexB = b._normalizedAddress.indexOf(normalizedQuery);
+            if (indexA !== indexB) return indexA - indexB;
+            return a.endereco.length - b.endereco.length;
+        })
+        .slice(0, limit)
+        .map(({ _normalizedAddress, ...address }) => address);
+}
+
+function renderSearchMessage(message) {
+    var suggestions = addressSearchState.suggestions;
+    if (!suggestions) return;
+    suggestions.innerHTML = "";
+    var row = document.createElement("div");
+    row.className = "address-search-message";
+    row.innerText = message;
+    suggestions.appendChild(row);
+    suggestions.classList.remove("hide");
+}
+
+function clearAddressSuggestions() {
+    var suggestions = addressSearchState.suggestions;
+    if (!suggestions) return;
+    suggestions.innerHTML = "";
+    suggestions.classList.add("hide");
+}
+
+function renderAddressSuggestions(localResults = [], geocodingResults = []) {
+    var suggestions = addressSearchState.suggestions;
+    if (!suggestions) return;
+
+    suggestions.innerHTML = "";
+    addressSearchState.lastGeocodingResults = geocodingResults;
+    if (geocodingResults.length > 0 && !addressSearchState.selectedGeocoding) {
+        addressSearchState.selectedGeocoding = geocodingResults[0];
+    }
+
+    if (localResults.length === 0 && geocodingResults.length === 0) {
+        clearAddressSuggestions();
+        return;
+    }
+
+    if (localResults.length > 0) {
+        localResults.forEach(item => {
+            var option = document.createElement("button");
+            option.type = "button";
+            option.className = "address-search-option";
+            option.innerHTML = `<span>${item.endereco}</span><small>Cartão ${item.cartao}</small>`;
+            option.addEventListener("click", () => selectLocalSearchResult(item));
+            suggestions.appendChild(option);
+        });
+    }
+
+    if (geocodingResults.length > 0) {
+        var divider = document.createElement("div");
+        divider.className = "address-search-divider";
+        divider.innerText = "Resultado externo (geocoding)";
+        suggestions.appendChild(divider);
+
+        geocodingResults.forEach(item => {
+            var option = document.createElement("button");
+            var isActive = addressSearchState.selectedGeocoding
+                && addressSearchState.selectedGeocoding.fullAddress === item.fullAddress;
+            option.type = "button";
+            option.className = "address-search-option geocoding" + (isActive ? " active" : "");
+            option.innerHTML = `<span>${item.fullAddress}</span>`;
+            option.addEventListener("click", () => selectGeocodingSuggestion(item));
+            suggestions.appendChild(option);
+        });
+
+        var createBtn = document.createElement("button");
+        createBtn.type = "button";
+        createBtn.className = "address-search-create";
+        createBtn.innerText = "+ Criar novo endereço";
+        createBtn.disabled = !addressSearchState.selectedGeocoding;
+        createBtn.addEventListener("click", () => openCreateAddressFromGeocoding(addressSearchState.selectedGeocoding));
+        suggestions.appendChild(createBtn);
+    }
+
+    suggestions.classList.remove("hide");
+}
+
+function selectLocalSearchResult(result) {
+    if (!addressSearchState.input) return;
+
+    addressSearchState.input.value = result.endereco;
+    mapHolder.showLocation([result.lat, result.long], 16);
+    clearAddressSuggestions();
+}
+
+function selectGeocodingSuggestion(result) {
+    addressSearchState.selectedGeocoding = result;
+    if (addressSearchState.input) {
+        var parsed = parseAddressNumber(result.fullAddress || "");
+        addressSearchState.input.value = formatStreetAndNumber(parsed, result.fullAddress || "");
+    }
+    mapHolder.showLocation(result, 16);
+    renderAddressSuggestions([], addressSearchState.lastGeocodingResults);
+}
+
+function openCreateAddressFromGeocoding(result) {
+    if (!result) return;
+
+    var parsed = parseAddressNumber(result.fullAddress || "");
+    showForm();
+
+    htmlUtil.get("#form_endereco").value = parsed.streetName || (result.fullAddress || "");
+    htmlUtil.get("#form_numerocasa").value = parsed.houseNumber || "";
+    htmlUtil.get("#form_lat").value = result.lat;
+    htmlUtil.get("#form_long").value = result.long;
+
+    mapHolder.triggerMapClick(result);
+    mapHolder.showLocation(result, 16);
+    clearAddressSuggestions();
+}
+
+function parseAddressNumber(address) {
+    var value = (address || "").trim();
+    if (!value) {
+        return {
+            streetName: "",
+            houseNumber: ""
+        };
+    }
+
+    var parts = value.split(",").map(x => x.trim()).filter(Boolean);
+    var streetName = parts[0] || value;
+    var houseNumber = "";
+    var firstPart = parts[0] || "";
+    var secondPart = parts[1] || "";
+
+    // Nominatim often returns: "201, Rua X, Bairro, Cidade..."
+    // In this format, first part is house number and second part is street.
+    if (/^\d+[A-Za-z0-9\-\/]*$/.test(firstPart) && secondPart) {
+        return {
+            streetName: secondPart.trim(),
+            houseNumber: firstPart.trim()
+        };
+    }
+
+    var endNumberMatch = streetName.match(/^(.*)\s(\d+[A-Za-z0-9\-\/]*)$/);
+    if (endNumberMatch) {
+        streetName = endNumberMatch[1].trim();
+        houseNumber = endNumberMatch[2].trim();
+    }
+
+    if (!houseNumber && parts[1]) {
+        var startNumberMatch = parts[1].match(/^(\d+[A-Za-z0-9\-\/]*)/);
+        if (startNumberMatch) {
+            houseNumber = startNumberMatch[1];
+        }
+    }
+
+    if (!houseNumber) {
+        var queryEndNumberMatch = value.match(/^(.*?)[,\s]+(\d+[A-Za-z0-9\-\/]*)$/);
+        if (queryEndNumberMatch) {
+            streetName = queryEndNumberMatch[1].trim();
+            houseNumber = queryEndNumberMatch[2].trim();
+        }
+    }
+
+    return {
+        streetName: streetName.trim(),
+        houseNumber: houseNumber.trim()
+    };
+}
+
+function formatStreetAndNumber(parsedAddress, fallback = "") {
+    if (!parsedAddress) return fallback;
+    var street = (parsedAddress.streetName || "").trim();
+    var number = (parsedAddress.houseNumber || "").trim();
+    if (street && number) return `${street}, ${number}`;
+    if (street) return street;
+    return fallback;
+}
+
+async function searchGeocoding(query) {
+    var parsed = parseAddressNumber(query);
+    if (!parsed.streetName) return [];
+
+    try {
+        var queryString = new URLSearchParams({
+            streetName: parsed.streetName,
+            houseNumber: parsed.houseNumber
+        }).toString();
+        var response = await fetch("/api/admin/territory/geocoding/v2?" + queryString);
+        if (!response.ok) return [];
+
+        var data = await response.json();
+        return Array.isArray(data) ? data.slice(0, 5) : [];
+    } catch (error) {
+        console.error("Erro no geocoding da busca:", error);
+        return [];
+    }
+}
+
+async function ensureAllCardsLoadedForSearch() {
+    if (!Array.isArray(territorios) || territorios.length === 0) return;
+
+    if (addressSearchState.loadAllCardsPromise) {
+        await addressSearchState.loadAllCardsPromise;
+        return;
+    }
+
+    var missingCards = territorios
+        .map(item => String(item.numeroCartao))
+        .filter(territoryNumber => !territoryCardsCache[territoryNumber]);
+
+    if (missingCards.length === 0) return;
+
+    addressSearchState.loadAllCardsPromise = (async () => {
+        for (const territoryNumber of missingCards) {
+            try {
+                var card = await loadTerritoryCard(territoryNumber);
+                territoryCardsCache[territoryNumber] = card;
+            } catch (error) {
+                console.error("Erro ao carregar cartão para busca:", territoryNumber, error);
+            }
+        }
+    })();
+
+    try {
+        await addressSearchState.loadAllCardsPromise;
+    } finally {
+        addressSearchState.loadAllCardsPromise = null;
+    }
+}
+
+async function onAddressSearchInput(query) {
+    var currentRequestId = ++addressSearchState.requestId;
+    var trimmedQuery = (query || "").trim();
+
+    if (trimmedQuery.length < 3) {
+        clearAddressSuggestions();
+        return;
+    }
+
+    renderSearchMessage("Buscando...");
+
+    var localResults = searchLocalAddresses(trimmedQuery, getAllLoadedAddressesForSearch());
+
+    if (localResults.length === 0) {
+        await ensureAllCardsLoadedForSearch();
+        if (currentRequestId !== addressSearchState.requestId) return;
+        localResults = searchLocalAddresses(trimmedQuery, getAllLoadedAddressesForSearch());
+    }
+
+    if (localResults.length > 0) {
+        renderAddressSuggestions(localResults, []);
+        return;
+    }
+
+    var geocodingResults = await searchGeocoding(trimmedQuery);
+    if (currentRequestId !== addressSearchState.requestId) return;
+
+    if (geocodingResults.length === 0) {
+        renderSearchMessage("Nenhum endereço encontrado.");
+        return;
+    }
+
+    renderAddressSuggestions([], geocodingResults);
 }
 
 function showForm(addressData = null) {

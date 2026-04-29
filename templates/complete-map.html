@@ -13,6 +13,10 @@
 </head>
 
 <body class="complete-map">
+    <div class="address-search-overlay" id="address-search-overlay">
+        <input type="text" id="address_search_input" placeholder="Pesquisar endereço..." autocomplete="off">
+        <div id="address_search_suggestions" class="address-search-suggestions hide"></div>
+    </div>
     <button class="show-hidden-list" onclick="showList()">selecionar territorios</button>
     <div class="territory-card" id="lista-oculta">        
         <div id="">
@@ -65,6 +69,7 @@
         document.addEventListener("DOMContentLoaded", async () => {
             await mapHolder.inicializarMapa();
             mountTerritoryListHtml();
+            initAddressSearch();
             mapHolder.setOnClickMark((data, marker) => {
                 if (isEditMode) return; // Prevent opening edit for another marker while editing
                 currentEditingMarker = marker;
