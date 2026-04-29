@@ -1,7 +1,7 @@
 # Task: Implementar Busca e Criação de Novo Endereço
 
 ## Objetivo
-Adicionar funcionalidade de busca de endereços na tela principal, com comportamento semelhante ao Google Maps, permitindo:
+Adicionar funcionalidade de busca de endereços na tela de mapa completo (edição de territorios), com comportamento semelhante ao Google Maps, permitindo:
 
 - Pesquisar endereços existentes
 - Exibir sugestões em tempo real
@@ -33,8 +33,6 @@ Ao digitar no campo:
 - Buscar por:
   - Nome da rua
   - Número
-  - Bairro
-  - Complemento (se existir)
 
 ### Retorno:
 - Exibir no máximo 5 endereços encontrados
@@ -158,29 +156,6 @@ Não exibir botão de criação.
 
 ---
 
-## Estrutura sugerida
-
-### Componentes
-- AddressSearchInput
-- AddressSuggestionList
-- CreateAddressButton
-- NewAddressModal
-
----
-
-## Serviços
-Criar/ajustar:
-
-```ts
-searchLocalAddresses(query: string)
-
-searchGeocoding(query: string)
-
-parseAddressNumber(address: string)
-```
-
----
-
 ## Fluxo esperado
 ```text
 Usuário digita
@@ -199,6 +174,92 @@ Encontrou?
                 ↓
             Abre modal preenchido
 ```
+
+---
+
+## Integração com a Aplicação (o que precisa ser feito)
+
+### 1. Entrada de busca na tela de mapa completo
+Adicionar o campo de pesquisa diretamente na tela `templates/complete-map.html`, ancorado no topo do mapa completo.
+
+Itens:
+- Criar input com id estável (ex.: `address_search_input`).
+- Criar container de sugestões (dropdown) logo abaixo do input.
+- Garantir que o dropdown feche ao clicar fora.
+- Posicionar o bloco para não conflitar com os botões existentes (`selecionar territorios` e `+ novo`).
+
+### 2. Lógica de busca local no frontend
+Implementar em `www/complete-map.js`:
+
+Funções novas:
+- `debounce(fn, wait)`
+- `searchLocalAddresses(query, addresses)`
+- `renderAddressSuggestions(items)`
+- `clearAddressSuggestions()`
+
+Fontes de dados:
+- Usar os dados já carregados em `territoryCardsCache`.
+- Complementar com `loadTerritoryCard(territoryNumber)` para cartões ainda não carregados no mapa (quando necessário).
+
+Comportamento:
+- Iniciar busca com 3+ caracteres.
+- Limitar retorno a 5 sugestões.
+- Ao clicar em sugestão:
+  - preencher o input de busca;
+  - centralizar mapa com `mapHolder.showLocation([lat, long])`;
+  - destacar visualmente o item na lista/tabela (quando aplicável).
+
+### 3. Fallback geocoding (sem quebrar o fluxo atual)
+Integrar fallback com endpoint já existente em `core/controller/AdressesController.js`:
+- `GET /api/admin/territory/geocoding/v2`
+
+Implementar em `www/complete-map.js`:
+- `searchGeocoding(query)` para consulta quando busca local vier vazia.
+- `parseAddressNumber(address)` para separar rua e número antes de montar query string.
+
+Regras:
+- Só chamar geocoding após debounce.
+- Se retornar 1 resultado: exibir opção `+ Criar novo endereço`.
+- Se retornar múltiplos: mostrar as melhores opções no dropdown.
+- Se falhar: mostrar mensagem `"Nenhum endereço encontrado."`.
+
+### 4. Integração com o fluxo de cadastro/edição administrativo
+Reaproveitar o fluxo já existente da própria tela `complete-map`.
+
+Ações necessárias:
+- Ao selecionar resultado de geocoding, habilitar ação `+ Criar novo endereço` na própria página.
+- Essa ação deve abrir `showForm()` e preencher automaticamente:
+  - `#form_endereco`
+  - `#form_numerocasa`
+  - `#form_lat`
+  - `#form_long`
+- Manter sem alteração os endpoints existentes de persistência:
+  - `POST /api/admin/territory/adresses`
+  - `PUT /api/admin/territory/adresses/:enderecoAnterior`
+  - `DELETE /api/admin/territory/adresses/:endereco`
+
+### 5. Estilo e usabilidade
+Atualizar `www/style.css` para:
+- Input de busca fixo/visível sem sobrepor controles do mapa.
+- Dropdown com scroll, hover e estado vazio.
+- Layout responsivo no mobile (sem esconder mapa e lista).
+
+### 6. Ajustes backend (opcional, recomendado)
+Se a busca local no frontend ficar limitada aos cartões atualmente carregados, criar endpoint de busca global:
+- `GET /api/territorios/search?query=...&limit=5`
+
+Implementação:
+- Controller: `core/controller/TerritoryController.js`
+- Service: `core/services/TerritorioService.js`
+- Retornar somente campos necessários: `endereco`, `lat`, `long`, `numeroCartao`.
+
+### 7. Testes de integração
+Validar ponta a ponta:
+- Busca local com resultados.
+- Busca local sem resultados + fallback geocoding.
+- Clique em sugestão local e geocoding centralizando mapa.
+- Ação `+ Criar novo endereço` abrindo o formulário da própria tela preenchido.
+- Salvamento no admin e recarga dos marcadores sem regressão.
 
 ---
 
