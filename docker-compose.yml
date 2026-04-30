@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  app:
+    container_name: congguaraninorte-front
+    build: .
+    restart: unless-stopped
+    networks:
+      - vps-network
+    environment:
+      AUTH_SECRET_KEY: ${AUTH_SECRET_KEY}
+      PORT: ${PORT}
+      SPREADSHEET_ID: ${SPREADSHEET_ID}
+
+networks:
+  vps-network:
+    external: true
