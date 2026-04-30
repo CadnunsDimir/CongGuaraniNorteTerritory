@@ -30,12 +30,16 @@ jobs:
 
             cd apps
 
-            echo 'Delete previous repository data'
-            rm -rf $REPO_FOLDER
-
-            echo 'Cloning repository ${{ github.repository }}'
-            git clone git@github.com:${{ github.repository }}.git
-            cd $REPO_FOLDER
+            if [ -d "$REPO_FOLDER" ]; then
+              echo "Repo já existe, atualizando..."
+              cd $REPO_FOLDER
+              git fetch --all
+              git reset --hard origin/main
+            else
+              echo "Clonando repositório..."
+              git clone git@github.com:${{ github.repository }}.git
+              cd $REPO_FOLDER
+            fi
             pwd
             
             echo 'Update data...'
@@ -52,19 +56,9 @@ jobs:
             sleep 5
             echo ''
             echo 'Publish on Docker and restart'
-            
-
-            echo ''
-            echo "removendo node modules"
-            rm node_modules -r
-
-            echo ''
-            echo "Limpando versão anterior..."
-            docker rm -f $IMAGE_NAME || true
 
             echo ''
             echo "Contruindo Container"
-            docker compose down
             docker compose up -d --build
 
             echo ''
@@ -78,16 +72,21 @@ jobs:
         script: |
             echo "Validando se container está OK"
             IMAGE_NAME=congguaraninorte-front
+
             sleep 10
-            OUTPUT=$(docker logs $IMAGE_NAME 2>&1)
 
-            echo "===== OUTPUT ====="
-            echo "$OUTPUT"
-            echo "=================="
+            for i in {1..5}; do
+              STATUS=$(docker inspect --format='{{.State.Health.Status}}' $IMAGE_NAME)
 
-            if [[ "$OUTPUT" == *"ERROR"* ]]; then
-                echo "❌ Encontrado ERROR no output"
-                exit 1
-            else
-                echo "✅ Nenhum erro encontrado"
-            fi
+              if [ "$STATUS" == "healthy" ]; then
+                echo "✅ Container saudável"
+                exit 0
+              fi
+
+              echo "⏳ Ainda não saudável ($STATUS)..."
+              sleep 5
+            done
+
+            echo "❌ Container não ficou saudável"
+            docker logs $IMAGE_NAME
+            exit 1
