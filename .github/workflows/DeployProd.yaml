@@ -75,7 +75,7 @@ jobs:
 
             sleep 10
 
-            for i in {1..5}; do
+            for i in $(seq 1 5); do
               STATUS=$(docker inspect --format='{{.State.Health.Status}}' $IMAGE_NAME)
 
               if [ "$STATUS" == "healthy" ]; then
