@@ -103,7 +103,9 @@ function carregarSelect() {
             atualizaUrl(cardNumber);
         });
 
-        formSelect.value = document.getElementById("form_numero_territorio").value;
+        setTimeout(()=>{
+            formSelect.value = document.getElementById("form_numero_territorio").value;
+        }, 1000);        
     }
 
     loadTerritoryList(listaOption => {
