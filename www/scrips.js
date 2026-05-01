@@ -175,6 +175,7 @@ function atualizarTituloFullscreen() {
         var nomeCartaoFullscreen = document.getElementById("nome-cartao-fullscreen");
         var select = document.getElementById("form_localide");
         const indice = select.selectedIndex || 0;
+        console.log(select.options, indice);
         const selctedOption = select.options[indice];
         if(selctedOption){
             const tituloCartao = selctedOption.text;
