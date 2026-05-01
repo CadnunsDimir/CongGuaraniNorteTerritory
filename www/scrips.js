@@ -93,19 +93,16 @@ function loadTerritoryList(onLoadOk) {
 function carregarSelect() {
     var formSelect = document.getElementById("form_localide");
 
-    var setOnChange = () => {
-        formSelect.addEventListener("change", ev => {
-            var inputNumeroTerritorio = document.getElementById("form_numero_territorio");
-            var cardNumber = ev.target.value;
-            inputNumeroTerritorio.value = cardNumber;
-            console.log("onchange, card "+cardNumber);
-            carregarEnderecos(cardNumber);
-            atualizaUrl(cardNumber);
-        });
-
-        setTimeout(()=>{
+    var setFormSelectDefaultOption = () => {
+        if (formSelect.options.length > 0) {
             formSelect.value = document.getElementById("form_numero_territorio").value;
-        }, 1000);        
+        } else {
+
+            setTimeout(() => {
+                console.log("retry set formSelect.value");
+                setFormSelectDefaultOption();
+            }, 1000);
+        }
     }
 
     loadTerritoryList(listaOption => {
@@ -116,10 +113,19 @@ function carregarSelect() {
             option.setAttribute("value", op.numeroCartao);
             formSelect.appendChild(option);
         });
-        
-        setOnChange();
+
+        formSelect.addEventListener("change", ev => {
+            var inputNumeroTerritorio = document.getElementById("form_numero_territorio");
+            var cardNumber = ev.target.value;
+            inputNumeroTerritorio.value = cardNumber;
+            console.log("onchange, card " + cardNumber);
+            carregarEnderecos(cardNumber);
+            atualizaUrl(cardNumber);
+        });
+
+        setFormSelectDefaultOption();
     });
-    
+
 }
 
 async function loadTerritoryCard(territoryNumber) {
