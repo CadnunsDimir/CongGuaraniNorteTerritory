@@ -102,6 +102,8 @@ function carregarSelect() {
             carregarEnderecos(cardNumber);
             atualizaUrl(cardNumber);
         });
+
+        formSelect.value = document.getElementById("form_numero_territorio").value;
     }
 
     loadTerritoryList(listaOption => {
@@ -112,8 +114,8 @@ function carregarSelect() {
             option.setAttribute("value", op.numeroCartao);
             formSelect.appendChild(option);
         });
-        formSelect.value = document.getElementById("form_numero_territorio").value;
-        setTimeout(setOnChange, 500);
+        
+        setOnChange();
     });
     
 }
@@ -177,10 +179,8 @@ function atualizarTituloFullscreen() {
         const indice = select.selectedIndex || 0;
         console.log(select.options, indice);
         const selctedOption = select.options[indice];
-        if(selctedOption){
-            const tituloCartao = selctedOption.text;
-            nomeCartaoFullscreen.innerText = tituloCartao;
-        }        
+        const tituloCartao = selctedOption.text;
+        nomeCartaoFullscreen.innerText = tituloCartao;        
     } catch (error) {
         alerts.show('error', error);   
     }    
