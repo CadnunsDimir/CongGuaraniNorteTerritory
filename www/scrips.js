@@ -98,6 +98,7 @@ function carregarSelect() {
             var inputNumeroTerritorio = document.getElementById("form_numero_territorio");
             var cardNumber = ev.target.value;
             inputNumeroTerritorio.value = cardNumber;
+            console.log("onchange, card "+cardNumber);
             carregarEnderecos(cardNumber);
             atualizaUrl(cardNumber);
         });
