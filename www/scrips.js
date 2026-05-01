@@ -174,8 +174,11 @@ function atualizarTituloFullscreen() {
         var nomeCartaoFullscreen = document.getElementById("nome-cartao-fullscreen");
         var select = document.getElementById("form_localide");
         const indice = select.selectedIndex || 0;
-        const tituloCartao = select.options[indice].text;
-        nomeCartaoFullscreen.innerText = tituloCartao;
+        const selctedOption = select.options[indice];
+        if(selctedOption){
+            const tituloCartao = selctedOption.text;
+            nomeCartaoFullscreen.innerText = tituloCartao;
+        }        
     } catch (error) {
         alerts.show('error', error);   
     }    
