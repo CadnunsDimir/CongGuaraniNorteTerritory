@@ -95,7 +95,9 @@ function carregarSelect() {
 
     var setFormSelectDefaultOption = () => {
         if (formSelect.options.length > 0) {
+            console.log('document.getElementById("form_numero_territorio").value', document.getElementById("form_numero_territorio").value);
             formSelect.value = document.getElementById("form_numero_territorio").value;
+            console.log('formSelect.value', formSelect.value);
         } else {
 
             setTimeout(() => {
